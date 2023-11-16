@@ -1,21 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 import 'const.dart';
-
-enum DutyState { filled, available, completed, cancelled }
-
-class Duty {
-  final String name;
-  final DutyState state;
-
-  Duty(this.name, this.state);
-}
+import 'types.dart';
 
 class DutiesPageRoute extends StatelessWidget {
   const DutiesPageRoute({super.key});
 
   List<Widget> createEventsList() {
-    List<Duty> duties1 = List.filled(3, Duty("Race Officer", DutyState.filled), growable: true);
-    List<Duty> duties2 = List.filled(5, Duty("ARO", DutyState.available), growable: true);
+    List<Duty> duties1 = List.filled(3, Duty(name: "Race Officer", status: DutyStatus.Assigned), growable: true);
+    List<Duty> duties2 = List.filled(5, Duty(name: "ARO", status: DutyStatus.Unassigned), growable: true);
 
     List<Widget> widgets = List.empty(growable: true);
     widgets.add(const CardExample(eventTitle: "Race 1", eventDate: "14 November 2023", duties: <Duty>[]));
@@ -33,6 +29,7 @@ class DutiesPageRoute extends StatelessWidget {
         title: const Text('Home Page'),
       ),
       body: ListView(children: [
+        DutyPage(title: "foo"),
         Column(children: createEventsList()),
         ElevatedButton(
           onPressed: () {
@@ -45,6 +42,53 @@ class DutiesPageRoute extends StatelessWidget {
   }
 }
 
+class DutyPage extends StatefulWidget {
+  const DutyPage({super.key, required this.title});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
+
+  @override
+  State<DutyPage> createState() => _DutyPageState();
+}
+
+class _DutyPageState extends State<DutyPage> {
+  late Future<List<CalendarEntry>> futureEntries;
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    //return Text("DutyPage goes here " + widget.title);
+    return FutureBuilder<List<CalendarEntry>>(
+        future: futureEntries,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Column(children: _createEventsList(snapshot.data!));
+          } else if (snapshot.hasError) {
+            return Text('${snapshot.error}');
+          }
+          //return Text("loadinh");
+
+          // By default, show a loading spinner.
+          return const Text("loading...");
+        });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    futureEntries = fetchDuties();
+  }
+}
+
 class CardExample extends StatelessWidget {
   const CardExample({super.key, required this.eventTitle, required this.eventDate, required this.duties});
 
@@ -52,11 +96,11 @@ class CardExample extends StatelessWidget {
   final String eventDate;
   final List<Duty> duties;
 
-  Widget _createButton(DutyState state) {
+  Widget _createButton(DutyStatus state) {
     switch (state) {
-      case DutyState.available:
+      case DutyStatus.Unassigned:
         return TextButton(child: const Text('Volunteer'), onPressed: () {});
-      case DutyState.filled:
+      case DutyStatus.Assigned:
         return TextButton(child: const Text('Swap'), onPressed: () {});
       default:
         return TextButton(child: const Text('???'), onPressed: () {});
@@ -69,9 +113,9 @@ class CardExample extends StatelessWidget {
     for (var duty in duties) {
       widgets[i] = Row(children: [
         Text(duty.name),
-        Text(" [${duty.state.name}] ", style: const TextStyle(color: Colors.grey)),
+        Text(" [${duty.status.name}] ", style: const TextStyle(color: Colors.grey)),
         const Expanded(child: Text("")),
-        _createButton(duty.state)
+        _createButton(duty.status)
       ]);
       i++;
     }
@@ -103,4 +147,39 @@ class CardExample extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<List<CalendarEntry>> fetchDuties() async {
+  List<CalendarEntry> result = List.empty(growable: true);
+
+  final response = await http.get(Uri.parse('https://myclub.run/api/clubs/hampton/duties'));
+
+  if (response.statusCode == 200) {
+    print("processing result!!!");
+    Iterable jsonList = jsonDecode(response.body);
+
+    jsonList.forEach((e) => {result.add(CalendarEntry.fromJson(e))});
+
+    print(result.length);
+
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    return result;
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load album');
+  }
+}
+// curl  https://myclub.run/api/clubs/hampton/duties | jq
+
+List<Widget> _createEventsList(List<CalendarEntry> data) {
+  List<Widget> result = List.empty(growable: true);
+
+  result.add( Text("loaded ${data.length} entries"));
+
+  for (var d in data) {
+    result.add (CardExample(eventTitle: d.name, eventDate: d.dateTime, duties: d.duties));
+  }
+  return result;
 }

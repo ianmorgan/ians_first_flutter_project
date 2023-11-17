@@ -1,16 +1,25 @@
 // should match Kotlin equivalent in back end
 enum DutyStatus { Unassigned, Assigned, Completed, Cancelled }
 
+class LoginState {
+  final bool isLoggedIn;
+  final String username;
+
+  LoginState({required this.isLoggedIn, required this.username});
+}
+
 class Duty {
   final String name;
   final DutyStatus status;
+  final String assignedUserName;
 
-  Duty({required this.name, required this.status});
+  Duty({required this.name, required this.status, required this.assignedUserName});
 
   factory Duty.fromJson(Map<String, dynamic> json) {
     var status = json['status'] as String;
     var statusEnum = DutyStatus.values.firstWhere((element) => element.name == status);
-    return Duty(name: json['name'] as String, status: statusEnum);
+    return Duty(
+        name: json['name'] as String, status: statusEnum, assignedUserName: json['assignedUserName'] as String);
   }
 }
 
@@ -26,7 +35,7 @@ class CalendarEntry {
     List<Duty> deserialisedDuties = List.empty(growable: true);
 
     // ignore: avoid_function_literals_in_foreach_calls
-    (json['duties'] as Iterable).forEach((e) => {deserialisedDuties.add(Duty.fromJson(e))});
+    (json['duties'] as Iterable).forEach((e) => deserialisedDuties.add(Duty.fromJson(e)));
 
     // xxx
     return CalendarEntry(

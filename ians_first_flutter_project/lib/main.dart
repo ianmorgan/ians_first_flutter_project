@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'duties.dart';
+import 'types.dart';
 import 'const.dart';
 
 void main() {
@@ -134,7 +135,9 @@ class LoginFormState extends State<LoginForm> {
                           {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const DutiesPageRoute()),
+                              MaterialPageRoute(
+                                  builder: (context) => DutiesPageRoute(
+                                      login: LoginState(isLoggedIn: true, username: myController.text))),
                             )
                           }
                         else if (value.statusCode == 401)

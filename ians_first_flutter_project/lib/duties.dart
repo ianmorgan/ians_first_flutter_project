@@ -5,22 +5,12 @@ import 'package:http/http.dart' as http;
 
 import 'const.dart';
 import 'types.dart';
+import 'volunteer.dart';
 
 class DutiesPageRoute extends StatelessWidget {
-  const DutiesPageRoute({super.key});
+  const DutiesPageRoute({super.key, required this.login});
 
-  List<Widget> createEventsList() {
-    List<Duty> duties1 = List.filled(3, Duty(name: "Race Officer", status: DutyStatus.Assigned), growable: true);
-    List<Duty> duties2 = List.filled(5, Duty(name: "ARO", status: DutyStatus.Unassigned), growable: true);
-
-    List<Widget> widgets = List.empty(growable: true);
-    widgets.add(const CardExample(eventTitle: "Race 1", eventDate: "14 November 2023", duties: <Duty>[]));
-    widgets.add(CardExample(eventTitle: "Race 2", eventDate: "15 November 2023", duties: duties1));
-    widgets.add(CardExample(eventTitle: "Race 3", eventDate: "16 November 2023", duties: duties2));
-    widgets.add(CardExample(eventTitle: "Race 4", eventDate: "17 November 2023", duties: duties1));
-    widgets.add(CardExample(eventTitle: "Race 5", eventDate: "18 November 2023", duties: duties2));
-    return widgets;
-  }
+  final LoginState login;
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +19,7 @@ class DutiesPageRoute extends StatelessWidget {
         title: const Text('Home Page'),
       ),
       body: ListView(children: [
-        DutyPage(title: "foo"),
-        Column(children: createEventsList()),
+        DutyPage(title: "foo", login: login),
         ElevatedButton(
           onPressed: () {
             Navigator.pop(context);
@@ -43,40 +32,31 @@ class DutiesPageRoute extends StatelessWidget {
 }
 
 class DutyPage extends StatefulWidget {
-  const DutyPage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  const DutyPage({super.key, required this.login, required this.title});
 
   final String title;
+  final LoginState login;
 
   @override
-  State<DutyPage> createState() => _DutyPageState();
+  State<DutyPage> createState() => _DutyPageState(login: login);
 }
 
 class _DutyPageState extends State<DutyPage> {
+  _DutyPageState({required this.login});
+
+  final LoginState login;
   late Future<List<CalendarEntry>> futureEntries;
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    //return Text("DutyPage goes here " + widget.title);
     return FutureBuilder<List<CalendarEntry>>(
         future: futureEntries,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return Column(children: _createEventsList(snapshot.data!));
+            return Column(children: _createEventsList(login, snapshot.data!));
           } else if (snapshot.hasError) {
             return Text('${snapshot.error}');
           }
-          //return Text("loadinh");
-
           // By default, show a loading spinner.
           return const Text("loading...");
         });
@@ -85,37 +65,88 @@ class _DutyPageState extends State<DutyPage> {
   @override
   void initState() {
     super.initState();
-    futureEntries = fetchDuties();
+    futureEntries = fetchDuties(login);
   }
 }
 
-class CardExample extends StatelessWidget {
-  const CardExample({super.key, required this.eventTitle, required this.eventDate, required this.duties});
+class CalendarEntryCard extends StatelessWidget {
+  const CalendarEntryCard({super.key, required this.login, required this.entry});
 
-  final String eventTitle;
-  final String eventDate;
-  final List<Duty> duties;
+  final CalendarEntry entry;
+  final LoginState login;
 
-  Widget _createButton(DutyStatus state) {
-    switch (state) {
+  List<Widget> _createButton(BuildContext context, CalendarEntry entry, Duty duty) {
+    List<Widget> widgets = List.empty(growable: true);
+    switch (duty.status) {
       case DutyStatus.Unassigned:
-        return TextButton(child: const Text('Volunteer'), onPressed: () {});
+        widgets.add(TextButton(
+            child: const Text('Volunteer'),
+            onPressed: () => {
+                  volunteerDialogBuilder(context, login, entry, duty),
+                }));
       case DutyStatus.Assigned:
-        return TextButton(child: const Text('Swap'), onPressed: () {});
+        widgets.add(TextButton(child: const Text('Swap'), onPressed: () {}));
+      case DutyStatus.Completed:
+        widgets.add(TextButton(child: const Text('Completed'), onPressed: () {}));
       default:
-        return TextButton(child: const Text('???'), onPressed: () {});
+      //widgets.add(TextButton(child: const Text(''), onPressed: () {}));
     }
+    //widgets.add(TextButton(child: const Text('Cancel'), onPressed: () {}));
+    return widgets;
   }
 
-  List<Widget> _createDutiesList() {
-    List<Widget> widgets = List.filled(duties.length, const Text(""), growable: false);
+  List<Widget> _createDutyInfo(BuildContext context, Duty duty, String currentUser) {
+    List<Widget> widgets = List.empty(growable: true);
+    widgets.add(Text(duty.name));
+    if (duty.assignedUserName != "???") {
+      widgets.add(const Text("  "));
+      if (duty.assignedUserName != currentUser) {
+        widgets.add(
+          Container(
+            height: 20,
+            color: Colors.grey.shade700,
+            child: Text(
+              " ${duty.assignedUserName} ",
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+      } else {
+        widgets.add(
+          Container(
+            height: 20,
+            color: baseColour,
+            child: const Text(
+              " Me ",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        );
+      }
+    }
+
+    //ElevatedButton(child: Text("aa"), onPressed: () {});
+    return widgets;
+  }
+
+  List<Widget> _createDutiesList(BuildContext context, LoginState login) {
+    List<Widget> widgets = List.filled(entry.duties.length, const Text(""), growable: false);
     int i = 0;
-    for (var duty in duties) {
-      widgets[i] = Row(children: [
-        Text(duty.name),
-        Text(" [${duty.status.name}] ", style: const TextStyle(color: Colors.grey)),
-        const Expanded(child: Text("")),
-        _createButton(duty.status)
+    for (var duty in entry.duties) {
+      widgets[i] = Table(columnWidths: const <int, TableColumnWidth>{
+        0: IntrinsicColumnWidth(),
+        1: FlexColumnWidth(),
+        2: FixedColumnWidth(100),
+      }, children: [
+        TableRow(children: [
+          TableCell(
+              verticalAlignment: TableCellVerticalAlignment.middle,
+              child: Wrap(children: _createDutyInfo(context, duty, login.username))),
+          Text(""),
+          TableCell(
+              verticalAlignment: TableCellVerticalAlignment.top,
+              child: Wrap(children: _createButton(context, entry, duty)))
+        ])
       ]);
       i++;
     }
@@ -135,13 +166,13 @@ class CardExample extends StatelessWidget {
               textColor: baseAnalogous1,
               leading: Icon(Icons.calendar_month),
               titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              title: Text(eventTitle),
-              subtitle: Text(eventDate),
+              title: Text(entry.name),
+              subtitle: Text(entry.dateTime),
               subtitleTextStyle: TextStyle(fontSize: 16),
             ),
             Padding(
                 padding: EdgeInsets.all(16.0),
-                child: Column(mainAxisAlignment: MainAxisAlignment.start, children: _createDutiesList())),
+                child: Column(mainAxisAlignment: MainAxisAlignment.start, children: _createDutiesList(context, login))),
           ],
         ),
       ),
@@ -149,7 +180,7 @@ class CardExample extends StatelessWidget {
   }
 }
 
-Future<List<CalendarEntry>> fetchDuties() async {
+Future<List<CalendarEntry>> fetchDuties(LoginState login) async {
   List<CalendarEntry> result = List.empty(growable: true);
 
   final response = await http.get(Uri.parse('https://myclub.run/api/clubs/hampton/duties'));
@@ -158,7 +189,8 @@ Future<List<CalendarEntry>> fetchDuties() async {
     print("processing result!!!");
     Iterable jsonList = jsonDecode(response.body);
 
-    jsonList.forEach((e) => {result.add(CalendarEntry.fromJson(e))});
+    // ignore: avoid_function_literals_in_foreach_calls
+    jsonList.forEach((e) => result.add(CalendarEntry.fromJson(e)));
 
     print(result.length);
 
@@ -173,13 +205,12 @@ Future<List<CalendarEntry>> fetchDuties() async {
 }
 // curl  https://myclub.run/api/clubs/hampton/duties | jq
 
-List<Widget> _createEventsList(List<CalendarEntry> data) {
+List<Widget> _createEventsList(LoginState login, List<CalendarEntry> data) {
   List<Widget> result = List.empty(growable: true);
+  result.add(Text("loaded ${data.length} entries"));
 
-  result.add( Text("loaded ${data.length} entries"));
-
-  for (var d in data) {
-    result.add (CardExample(eventTitle: d.name, eventDate: d.dateTime, duties: d.duties));
+  for (var entry in data) {
+    result.add(CalendarEntryCard(login: login, entry: entry));
   }
   return result;
 }

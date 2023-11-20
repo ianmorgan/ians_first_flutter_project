@@ -54,16 +54,19 @@ class CalendarEntry {
   }
 }
 
-
 class CalendarModel extends ChangeNotifier {
-
-  final List<CalendarEntry> _entries = [];
+  List<CalendarEntry> _entries = [];
 
   /// An unmodifiable view of the items in the cart.
   UnmodifiableListView<CalendarEntry> get entries => UnmodifiableListView(_entries);
 
   void update(CalendarEntry entry) {
     _entries[_entries.indexWhere((element) => element.id == entry.id)] = entry;
+    notifyListeners();
+  }
+
+  void load(List<CalendarEntry> entries) {
+    _entries = entries;
     notifyListeners();
   }
 

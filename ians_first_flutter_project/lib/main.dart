@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'duties.dart';
-import 'types.dart';
+import 'models.dart';
 import 'const.dart';
 
 

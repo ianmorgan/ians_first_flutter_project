@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:ians_first_flutter_project/models.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 /// Flutter code sample for [showDialog].
 
 Future<void> volunteerDialogBuilder(
-    BuildContext context, LoginState login, CalendarEntry calendarEntry, Duty duty, CalendarModel model) {
+    BuildContext context, LoginState login, String entryId, String dutyId, CalendarModel model) {
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
+      var entry = model.entryById(entryId);
+      var duty = model.dutyById(dutyId);
       return AlertDialog(
         title: Text('Volunteer for ${duty.name}'),
-        content: Text('You are volunteering for "${duty.name}" duty at ${calendarEntry.name} '
-            'on ${calendarEntry.dateTime}\n\n'
+        content: Text('You are volunteering for "${duty.name}" duty at ${entry.name} '
+            'on ${entry.dateTime}\n\n'
             'Please accept by pressing the "Confirm" button below.\n'),
         actions: <Widget>[
           TextButton(
@@ -58,7 +59,7 @@ Future<(bool, String)> volunteerForDuties(LoginState login, Duty duty, CalendarM
   print(response.statusCode);
   print(response.body);
   if (response.statusCode == 200){
-    model.load(List.empty());
+    model.assignDuty(duty.id, login.username);
   }
   return (response.statusCode == 200, response.body);
 }

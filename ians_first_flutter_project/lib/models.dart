@@ -13,9 +13,9 @@ class LoginState {
 }
 
 class Duty {
-  final String name;
+  String name;
   DutyStatus status;
-  final String assignedUserName;
+  String assignedUserName;
   final String id;
 
   Duty({required this.id, required this.name, required this.status, required this.assignedUserName});
@@ -60,35 +60,35 @@ class CalendarModel extends ChangeNotifier {
   /// An unmodifiable view of the items in the cart.
   UnmodifiableListView<CalendarEntry> get entries => UnmodifiableListView(_entries);
 
-  void update(CalendarEntry entry) {
-    _entries[_entries.indexWhere((element) => element.id == entry.id)] = entry;
-    notifyListeners();
-  }
-
   void load(List<CalendarEntry> entries) {
     _entries = entries;
     notifyListeners();
   }
 
-}
-
-/*
-"name": "General Sailing B",
-    "id": "d250e277-185a-4bfd-aeea-dcfef5080200",
-    "dateTime": "Jan 10, 2024, 11:00 AM",
-    "hasDuties": true,
-    "duties": [
-      {
-        "name": "Safety Boat Helm",
-        "status": "Unassigned"
-      },
-      {
-        "name": "Safety Boat Crew",
-        "status": "Unassigned"
-      },
-      {
-        "name": "Officer of the Day",
-        "status": "Unassigned"
+  void assignDuty(String dutyId, String user) {
+    for (var entry in _entries) {
+      var index = entry.duties.indexWhere((element) => element.id == dutyId);
+      if (index != -1) {
+        var duty = entry.duties[index];
+        duty.status = DutyStatus.Assigned;
+        duty.assignedUserName = user;
       }
+    }
+    notifyListeners();
+  }
 
- */
+  CalendarEntry entryById(String id) {
+    return entries[entries.indexWhere((element) => element.id == id)];
+  }
+
+  Duty dutyById(String id) {
+    for (var entry in _entries) {
+      var index = entry.duties.indexWhere((element) => element.id == id);
+      if (index != -1) {
+        var duty = entry.duties[index];
+        return duty;
+      }
+    }
+    throw ("No Duty with id: '${id}' ");
+  }
+}

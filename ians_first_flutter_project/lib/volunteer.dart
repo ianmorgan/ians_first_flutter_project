@@ -13,7 +13,7 @@ Future<void> volunteerDialogBuilder(
       var duty = model.dutyById(dutyId);
       return AlertDialog(
         title: Text('Volunteer for ${duty.name}'),
-        content: Text('You are volunteering for "${duty.name}" duty at ${entry.name} '
+        content: Text('Hi ${login.username}, you are volunteering for "${duty.name}" duty at ${entry.name} '
             'on ${entry.dateTime}\n\n'
             'Please accept by pressing the "Confirm" button below.\n'),
         actions: <Widget>[
@@ -54,6 +54,9 @@ Future<void> volunteerDialogBuilder(
 Future<(bool, String)> volunteerForDuties(LoginState login, Duty duty, CalendarModel model) async {
   List<CalendarEntry> result = List.empty(growable: true);
 //            "/api/clubs/{club}/duties/duty/{duty}/doVolunteer" bind Method.POST to {
+  print("user name is: ${login.username}");
+  print("duty is: ${duty.name}");
+  print("calendar entry is: ${model.entryForDutyId(duty.id).name}");
   final response = await http.post(Uri.parse(
       'https://myclub.run/api/clubs/hampton/duties/duty/${duty.id}/doVolunteer?username=${login.username}&doubleSubmitToken=123456'));
   print(response.statusCode);

@@ -91,4 +91,14 @@ class CalendarModel extends ChangeNotifier {
     }
     throw ("No Duty with id: '${id}' ");
   }
+
+  CalendarEntry entryForDutyId(String dutyId) {
+    for (var entry in _entries) {
+      var index = entry.duties.indexWhere((element) => element.id == dutyId);
+      if (index != -1) {
+        return entry;
+      }
+    }
+    throw ("No CalendarEntry with a Duty of id: '${dutyId}' ");
+  }
 }

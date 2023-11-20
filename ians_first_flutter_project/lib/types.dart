@@ -1,4 +1,8 @@
 // should match Kotlin equivalent in back end
+import 'dart:collection';
+
+import 'package:flutter/foundation.dart';
+
 enum DutyStatus { Unassigned, Assigned, Completed, Cancelled }
 
 class LoginState {
@@ -10,16 +14,20 @@ class LoginState {
 
 class Duty {
   final String name;
-  final DutyStatus status;
+  DutyStatus status;
   final String assignedUserName;
+  final String id;
 
-  Duty({required this.name, required this.status, required this.assignedUserName});
+  Duty({required this.id, required this.name, required this.status, required this.assignedUserName});
 
   factory Duty.fromJson(Map<String, dynamic> json) {
     var status = json['status'] as String;
     var statusEnum = DutyStatus.values.firstWhere((element) => element.name == status);
     return Duty(
-        name: json['name'] as String, status: statusEnum, assignedUserName: json['assignedUserName'] as String);
+        id: json['id'] as String,
+        name: json['name'] as String,
+        status: statusEnum,
+        assignedUserName: json['assignedUserName'] as String);
   }
 }
 
@@ -44,6 +52,21 @@ class CalendarEntry {
         dateTime: json['dateTime'] as String,
         duties: deserialisedDuties);
   }
+}
+
+
+class CalendarModel extends ChangeNotifier {
+
+  final List<CalendarEntry> _entries = [];
+
+  /// An unmodifiable view of the items in the cart.
+  UnmodifiableListView<CalendarEntry> get entries => UnmodifiableListView(_entries);
+
+  void update(CalendarEntry entry) {
+    _entries[_entries.indexWhere((element) => element.id == entry.id)] = entry;
+    notifyListeners();
+  }
+
 }
 
 /*

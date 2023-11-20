@@ -1,7 +1,7 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 import 'const.dart';
 import 'types.dart';
@@ -14,19 +14,23 @@ class DutiesPageRoute extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home Page'),
-      ),
-      body: ListView(children: [
-        DutyPage(title: "foo", login: login),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('Go back!'),
-        )
-      ]),
+    return Consumer<CalendarModel>(
+      builder: (context, cart, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Home Page'),
+          ),
+          body: ListView(children: [
+            DutyPage(title: "foo", login: login),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Go back!'),
+            )
+          ]),
+        );
+      },
     );
   }
 }
@@ -89,9 +93,8 @@ class CalendarEntryCard extends StatelessWidget {
       case DutyStatus.Completed:
         widgets.add(TextButton(child: const Text('Completed'), onPressed: () {}));
       default:
-      //widgets.add(TextButton(child: const Text(''), onPressed: () {}));
+        widgets.add(TextButton(child: const Text(''), onPressed: () {}));
     }
-    //widgets.add(TextButton(child: const Text('Cancel'), onPressed: () {}));
     return widgets;
   }
 
@@ -186,13 +189,12 @@ Future<List<CalendarEntry>> fetchDuties(LoginState login) async {
   final response = await http.get(Uri.parse('https://myclub.run/api/clubs/hampton/duties'));
 
   if (response.statusCode == 200) {
-    print("processing result!!!");
     Iterable jsonList = jsonDecode(response.body);
 
-    // ignore: avoid_function_literals_in_foreach_calls
-    jsonList.forEach((e) => result.add(CalendarEntry.fromJson(e)));
-
-    print(result.length);
+    for (var element in jsonList) {
+      result.add(CalendarEntry.fromJson(element));
+    }
+    //jsonList.forEach((e) => result.add(CalendarEntry.fromJson(e)));
 
     // If the server did return a 200 OK response,
     // then parse the JSON.
@@ -210,7 +212,7 @@ List<Widget> _createEventsList(LoginState login, List<CalendarEntry> data) {
   result.add(Text("loaded ${data.length} entries"));
 
   for (var entry in data) {
-    result.add(CalendarEntryCard(login: login, entry: entry));
+    result.add(CalendarEntryCard(key: UniqueKey(), login: login, entry: entry));
   }
   return result;
 }

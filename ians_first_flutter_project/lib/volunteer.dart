@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ians_first_flutter_project/types.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 
 /// Flutter code sample for [showDialog].
 
@@ -21,7 +24,18 @@ Future<void> volunteerDialogBuilder(BuildContext context, LoginState login, Cale
             ),
             child: const Text('Confirm'),
             onPressed: () {
-              // todo - make the ajax call !!!
+              volunteerForDuties(login, duty).then((value)
+              {
+                print("in callback");
+                //print("aa");
+                if(value.$1) duty.status = DutyStatus.Assigned;
+
+              });
+
+              //.then((bool, String)) => {});
+
+              //duty.status = DutyStatus.Assigned;
+
               Navigator.of(context).pop();
             },
           ),
@@ -41,56 +55,13 @@ Future<void> volunteerDialogBuilder(BuildContext context, LoginState login, Cale
 }
 
 
-class DialogExample extends StatelessWidget {
-  const DialogExample({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('showDialog Sample')),
-      body: Center(
-        child: OutlinedButton(
-          onPressed: () => _dialogBuilder(context),
-          child: const Text('Open Dialog'),
-        ),
-      ),
-    );
-  }
+Future<(bool, String)> volunteerForDuties(LoginState login, Duty duty) async {
+  List<CalendarEntry> result = List.empty(growable: true);
+//            "/api/clubs/{club}/duties/duty/{duty}/doVolunteer" bind Method.POST to {
+  final response = await http.post(Uri.parse('https://myclub.run/api/clubs/hampton/duties/duty/${duty.id}/doVolunteer?username=${login.username}&doubleSubmitToken=123456'));
+  print(response.statusCode);
+  print(response.body);
+  return (response.statusCode == 200, response.body);
 
-  Future<void> _dialogBuilder(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Basic dialog title'),
-          content: const Text(
-            'A dialog is a type of modal window that\n'
-                'appears in front of app content to\n'
-                'provide critical information, or prompt\n'
-                'for a decision to be made.',
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Disable'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Enable'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

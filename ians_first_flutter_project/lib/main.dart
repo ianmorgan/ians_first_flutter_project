@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'duties.dart';
 import 'types.dart';
 import 'const.dart';
 
+
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => CalendarModel(),
+    child: const MyApp(),
+  ));
+
 }
 
 Future<void> _launchHomePage() async {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ians_first_flutter_project/models.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:ians_first_flutter_project/widgets.dart';
 
 Future<void> volunteerDialogBuilder(
     BuildContext context, AuthModel authModel, String entryId, String dutyId, CalendarModel model) {
@@ -23,9 +23,14 @@ Future<void> volunteerDialogBuilder(
             child: const Text('Confirm'),
             onPressed: () {
               volunteerForDuties(authModel, duty, model).then((value) {
-                print("in callback");
                 //print("aa");
-                if (value.$1) duty.status = DutyStatus.Assigned;
+                if (value.$1) {
+                  duty.status = DutyStatus.Assigned;
+                  SuccessSnackBar("You have volunteered for ${duty.name}. Please check you email for full details.").build(context);
+                }
+                else {
+                  ErrorSnackBar("There was a problem:\n '${value.$2}'").build(context);
+                }
               });
 
               //.then((bool, String)) => {});
@@ -60,7 +65,7 @@ Future<(bool, String)> volunteerForDuties(AuthModel authModel, Duty duty, Calend
       'https://myclub.run/api/clubs/hampton/duties/duty/${duty.id}/doVolunteer?username=${authModel.username}&doubleSubmitToken=123456'));
   print(response.statusCode);
   print(response.body);
-  if (response.statusCode == 200){
+  if (response.statusCode == 200) {
     model.assignDuty(duty.id, authModel.username);
   }
   return (response.statusCode == 200, response.body);

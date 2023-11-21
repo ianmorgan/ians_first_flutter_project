@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'duties.dart';
 import 'models.dart';
 import 'const.dart';
+import 'widgets.dart';
 
 void main() {
   runApp(MultiProvider(
@@ -128,17 +129,11 @@ class LoginFormState extends State<LoginForm> {
                             {successLogin(context, myController.text, authModel)}
                           else if (value.statusCode == 401)
                             {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text(
-                                      "Not authorised, please check the name. (status code = ${value.statusCode})",
-                                      style: const TextStyle(color: Colors.red))))
+                              ErrorSnackBar("Not authorised, please check the name. (status code = ${value.statusCode})")
+                                  .build(context)
                             }
                           else
-                            {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: Text("Opps that failed. (status code = ${value.statusCode}) )"),
-                              ))
-                            }
+                            {ErrorSnackBar("Opps, that failed. (status code = ${value.statusCode}) )").build(context)}
                         });
 
                     // If the form is valid, display a snackbar. In the real world,
@@ -168,15 +163,7 @@ Future<http.Response> doLogin(String username) {
 
 Future<dynamic> successLogin(BuildContext context, String username, AuthModel authModel) {
   authModel.login(username);
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text("Successfully logged in as $username"),
-    action: SnackBarAction(
-      label: 'Close',
-      onPressed: () {
-        // Some code to undo the change.
-      },
-    ),
-  ));
+  SuccessSnackBar("Successfully logged in as $username").build(context);
   return Navigator.push(
       context,
       MaterialPageRoute(

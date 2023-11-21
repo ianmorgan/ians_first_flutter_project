@@ -5,13 +5,6 @@ import 'package:flutter/foundation.dart';
 
 enum DutyStatus { Unassigned, Assigned, Completed, Cancelled }
 
-class LoginState {
-  final bool isLoggedIn;
-  final String username;
-
-  LoginState({required this.isLoggedIn, required this.username});
-}
-
 class AuthModel extends ChangeNotifier {
   bool isLoggedIn = false;
   String username = "???";
@@ -101,7 +94,7 @@ class CalendarModel extends ChangeNotifier {
         return duty;
       }
     }
-    throw ("No Duty with id: '${id}' ");
+    throw ("No Duty with id: '$id' ");
   }
 
   CalendarEntry entryForDutyId(String dutyId) {
@@ -111,6 +104,6 @@ class CalendarModel extends ChangeNotifier {
         return entry;
       }
     }
-    throw ("No CalendarEntry with a Duty of id: '${dutyId}' ");
+    throw ("No CalendarEntry with a Duty of id: '$dutyId' ");
   }
 }

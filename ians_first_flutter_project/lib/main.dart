@@ -56,15 +56,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -74,12 +65,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         backgroundColor: baseColour,
@@ -138,36 +123,24 @@ class LoginFormState extends State<LoginForm> {
                 onPressed: () {
                   // Validate returns true if the form is valid, or false otherwise.
                   if (_formKey.currentState!.validate()) {
-                    var x = doLogin(myController.text).then((value) => {
+                    doLogin(myController.text).then((value) => {
                           if (value.statusCode == 200)
-                            {
-                              successLogin(context, myController.text, authModel)
-                              // //authModel.login(myController.text);
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //       builder: (context) => DutiesPageRoute(
-                              //           login: LoginState(isLoggedIn: true, username: myController.text))),
-                              // )
-                            }
+                            {successLogin(context, myController.text, authModel)}
                           else if (value.statusCode == 401)
                             {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text(
-                                        "opps, not authorised - please check the name" + value.statusCode.toString())),
-                              )
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text(
+                                      "Not authorised, please check the name. (status code = ${value.statusCode})",
+                                      style: const TextStyle(color: Colors.red))))
                             }
                           else
                             {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text("opps that failed. status code is:" + value.statusCode.toString())),
-                              )
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text("Opps that failed. (status code = ${value.statusCode}) )"),
+                              ))
                             }
                         });
 
-                    print("doLogin(myController.text) returned " + x.toString());
                     // If the form is valid, display a snackbar. In the real world,
                     // you'd often call a server or save the information in a database.
                   }
@@ -193,12 +166,21 @@ Future<http.Response> doLogin(String username) {
   return http.get(Uri.parse('https://myclub.run/auth/doLogin?username=$username&password=&from='));
 }
 
-Future<dynamic> successLogin(BuildContext context, String username, AuthModel model) {
-  model.login(username);
+Future<dynamic> successLogin(BuildContext context, String username, AuthModel authModel) {
+  authModel.login(username);
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text("Successfully logged in as $username"),
+    action: SnackBarAction(
+      label: 'Close',
+      onPressed: () {
+        // Some code to undo the change.
+      },
+    ),
+  ));
   return Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DutiesPageRoute(login: LoginState(isLoggedIn: true, username: username)),
+        builder: (context) => const DutiesPageRoute(),
       ));
 }
 

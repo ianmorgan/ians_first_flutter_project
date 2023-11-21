@@ -7,9 +7,7 @@ import 'models.dart';
 import 'volunteer.dart';
 
 class DutiesPageRoute extends StatelessWidget {
-  const DutiesPageRoute({super.key, required this.login});
-
-  final LoginState login;
+  const DutiesPageRoute({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +15,12 @@ class DutiesPageRoute extends StatelessWidget {
       builder: (context, duties, child) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('Duties Page ${login.username}'),
+            title: Consumer<AuthModel>(builder: (context, authModel, child) {
+              return Text('Duties Page ${authModel.username}');
+            }),
           ),
           body: ListView(children: [
-            DutyPage(title: "foo", login: login, model: duties),
+            DutyPage(title: "foo", model: duties),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -35,51 +35,48 @@ class DutiesPageRoute extends StatelessWidget {
 }
 
 class DutyPage extends StatefulWidget {
-  const DutyPage({super.key, required this.login, required this.title, required this.model});
+  const DutyPage({super.key, required this.title, required this.model});
 
   final String title;
-  final LoginState login;
   final CalendarModel model;
 
   @override
-  State<DutyPage> createState() => _DutyPageState(login: login, model: model);
+  State<DutyPage> createState() => _DutyPageState(model: model);
 }
 
 class _DutyPageState extends State<DutyPage> {
-  _DutyPageState({required this.login, required this.model});
+  _DutyPageState({required this.model});
 
-  final LoginState login;
-  late Future<int> futureEntries;
   final CalendarModel model;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<int>(
-        future: futureEntries,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Column(children: _createEventsList(login, model));
-          } else if (snapshot.hasError) {
-            return Text('${snapshot.error}');
-          }
-          // By default, show a loading spinner.
-          return const Text("loading...");
-        });
+    return Consumer<AuthModel>(builder: (context, authModel, child) {
+      return FutureBuilder<int>(
+          future: fetchDuties(authModel, model),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Column(children: _createEventsList(authModel, model));
+            } else if (snapshot.hasError) {
+              return Text('${snapshot.error}');
+            }
+            // By default, show a loading spinner.
+            return const Text("loading...");
+          });
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    futureEntries = fetchDuties(login, model);
   }
 }
 
 class CalendarEntryCard extends StatelessWidget {
-  const CalendarEntryCard({super.key, required this.login, required this.entryId});
+  const CalendarEntryCard({super.key, required this.authModel, required this.entryId});
 
   final String entryId;
-  final LoginState login;
-
+  final AuthModel authModel;
 
   List<Widget> _createButton(BuildContext context, CalendarModel model, String entryId, String dutyId) {
     List<Widget> widgets = List.empty(growable: true);
@@ -89,7 +86,7 @@ class CalendarEntryCard extends StatelessWidget {
         widgets.add(TextButton(
             child: const Text('Volunteer'),
             onPressed: () => {
-                  volunteerDialogBuilder(context, login, entryId, dutyId, model),
+                  volunteerDialogBuilder(context, authModel, entryId, dutyId, model),
                 }));
       case DutyStatus.Assigned:
         widgets.add(TextButton(child: const Text('Swap'), onPressed: () {}));
@@ -134,7 +131,7 @@ class CalendarEntryCard extends StatelessWidget {
     return widgets;
   }
 
-  List<Widget> _createDutiesList(BuildContext context, CalendarModel model, LoginState login) {
+  List<Widget> _createDutiesList(BuildContext context, CalendarModel model, AuthModel authModel) {
     List<Widget> widgets = List.filled(model.entryById(entryId).duties.length, const Text(""), growable: false);
     int i = 0;
     for (var duty in model.entryById(entryId).duties) {
@@ -146,7 +143,7 @@ class CalendarEntryCard extends StatelessWidget {
         TableRow(children: [
           TableCell(
               verticalAlignment: TableCellVerticalAlignment.middle,
-              child: Wrap(children: _createDutyInfo(context, duty, login.username))),
+              child: Wrap(children: _createDutyInfo(context, duty, authModel.username))),
           const Text(""),
           TableCell(
               verticalAlignment: TableCellVerticalAlignment.top,
@@ -178,8 +175,8 @@ class CalendarEntryCard extends StatelessWidget {
               ),
               Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child:
-                      Column(mainAxisAlignment: MainAxisAlignment.start, children: _createDutiesList(context, model, login))),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start, children: _createDutiesList(context, model, authModel))),
             ],
           ),
         ),
@@ -188,7 +185,7 @@ class CalendarEntryCard extends StatelessWidget {
   }
 }
 
-Future<int> fetchDuties(LoginState login, CalendarModel model) async {
+Future<int> fetchDuties(AuthModel authModel, CalendarModel model) async {
   print("**** fetchDuties has been called!! ****");
   List<CalendarEntry> result = List.empty(growable: true);
 
@@ -213,14 +210,14 @@ Future<int> fetchDuties(LoginState login, CalendarModel model) async {
 
 // curl  https://myclub.run/api/clubs/hampton/duties | jq
 
-List<Widget> _createEventsList(LoginState login, CalendarModel model) {
+List<Widget> _createEventsList(AuthModel authModel, CalendarModel model) {
   List<Widget> result = List.empty(growable: true);
   result.add(Text("loaded ${model.entries.length} entries"));
 
   for (var entry in model.entries) {
     result.add(CalendarEntryCard(
       key: UniqueKey(),
-      login: login,
+      authModel: authModel,
       entryId: entry.id,
     ));
   }

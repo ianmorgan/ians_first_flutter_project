@@ -6,13 +6,14 @@ import 'duties.dart';
 import 'models.dart';
 import 'const.dart';
 
-
 void main() {
-  runApp(ChangeNotifierProvider(
-    create: (context) => CalendarModel(),
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => CalendarModel()),
+      ChangeNotifierProvider(create: (context) => AuthModel())
+    ],
     child: const MyApp(),
   ));
-
 }
 
 Future<void> _launchHomePage() async {
@@ -117,61 +118,67 @@ class LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: <Widget>[
-          TextFormField(
-            validator: (value) {
-              if (value == null || value.isEmpty || value.length < 3) {
-                return 'Please enter a user name (at least 3 characters)';
-              }
-              return null;
-            },
-            controller: myController,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: ElevatedButton(
-              onPressed: () {
-                // Validate returns true if the form is valid, or false otherwise.
-                if (_formKey.currentState!.validate()) {
-                  doLogin(myController.text).then((value) => {
-                        if (value.statusCode == 200)
-                          {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => DutiesPageRoute(
-                                      login: LoginState(isLoggedIn: true, username: myController.text))),
-                            )
-                          }
-                        else if (value.statusCode == 401)
-                          {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      "opps, not authorised - please check the name" + value.statusCode.toString())),
-                            )
-                          }
-                        else
-                          {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text("opps that failed. status code is:" + value.statusCode.toString())),
-                            )
-                          }
-                      });
-                  // If the form is valid, display a snackbar. In the real world,
-                  // you'd often call a server or save the information in a database.
+    return Consumer<AuthModel>(builder: (context, authModel, child) {
+      return Form(
+        key: _formKey,
+        child: Column(
+          children: <Widget>[
+            TextFormField(
+              validator: (value) {
+                if (value == null || value.isEmpty || value.length < 3) {
+                  return 'Please enter a user name (at least 3 characters)';
                 }
+                return null;
               },
-              child: const Text('Login'),
+              controller: myController,
             ),
-          ),
-        ],
-      ),
-    );
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Validate returns true if the form is valid, or false otherwise.
+                  if (_formKey.currentState!.validate()) {
+                    var x = doLogin(myController.text).then((value) => {
+                          if (value.statusCode == 200)
+                            {
+                              successLogin(context, myController.text, authModel)
+                              // //authModel.login(myController.text);
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //       builder: (context) => DutiesPageRoute(
+                              //           login: LoginState(isLoggedIn: true, username: myController.text))),
+                              // )
+                            }
+                          else if (value.statusCode == 401)
+                            {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        "opps, not authorised - please check the name" + value.statusCode.toString())),
+                              )
+                            }
+                          else
+                            {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text("opps that failed. status code is:" + value.statusCode.toString())),
+                              )
+                            }
+                        });
+
+                    print("doLogin(myController.text) returned " + x.toString());
+                    // If the form is valid, display a snackbar. In the real world,
+                    // you'd often call a server or save the information in a database.
+                  }
+                },
+                child: const Text('Login'),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   @override
@@ -184,6 +191,15 @@ class LoginFormState extends State<LoginForm> {
 
 Future<http.Response> doLogin(String username) {
   return http.get(Uri.parse('https://myclub.run/auth/doLogin?username=$username&password=&from='));
+}
+
+Future<dynamic> successLogin(BuildContext context, String username, AuthModel model) {
+  model.login(username);
+  return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DutiesPageRoute(login: LoginState(isLoggedIn: true, username: username)),
+      ));
 }
 
 Future<http.Response> doLogin2(String username) {

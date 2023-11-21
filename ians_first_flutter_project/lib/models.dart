@@ -12,6 +12,18 @@ class LoginState {
   LoginState({required this.isLoggedIn, required this.username});
 }
 
+class AuthModel extends ChangeNotifier {
+  bool isLoggedIn = false;
+  String username = "???";
+  String authToken = "???";
+
+  void login(String username) {
+    isLoggedIn = true;
+    this.username = username;
+    notifyListeners();
+  }
+}
+
 class Duty {
   String name;
   DutyStatus status;

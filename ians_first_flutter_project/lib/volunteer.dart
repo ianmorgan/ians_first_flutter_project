@@ -26,7 +26,7 @@ Future<void> volunteerDialogBuilder(
                 //print("aa");
                 if (value.$1) {
                   duty.status = DutyStatus.Assigned;
-                  SuccessSnackBar("You have volunteered for ${duty.name}. Please check you email for full details.").build(context);
+                  SuccessSnackBar("You have volunteered for ${duty.name}. Please check your email for full details.").build(context);
                 }
                 else {
                   ErrorSnackBar("There was a problem:\n '${value.$2}'").build(context);

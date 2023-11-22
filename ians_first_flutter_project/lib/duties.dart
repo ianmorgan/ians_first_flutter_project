@@ -11,26 +11,39 @@ class DutiesPageRoute extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<DutiesModel>(
-      builder: (context, duties, child) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Consumer<AuthModel>(builder: (context, authModel, child) {
-              return Text('Duties Page ${authModel.username}');
-            }),
-          ),
-          body: ListView(children: [
-            DutyPage(title: "foo"),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Go back!'),
-            )
-          ]),
-        );
-      },
-    );
+    return Consumer<DutiesModel>(builder: (context, duties, child) {
+      return Consumer<AuthModel>(
+        builder: (context, authModel, child) {
+          return Scaffold(
+              appBar: AppBar(
+                title: Consumer<AuthModel>(builder: (context, authModel, child) {
+                  return Text('Duties Page ${authModel.username}');
+                }),
+              ),
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  print("**** refreshing page ***");
+                  // Handle the refresh action here (e.g., fetch new data)
+                  // You can call an API, update data, or perform any necessary tasks
+                  // Remember to use asynchronous functions when performing async operations
+
+                  // Example of a delay to simulate an asynchronous operation
+                  await fetchDuties(authModel, duties);
+                  duties.notifyListeners();
+                },
+                child: ListView(children: [
+                  DutyPage(title: "foo"),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Go back!'),
+                  )
+                ]),
+              ));
+        },
+      );
+    });
   }
 }
 

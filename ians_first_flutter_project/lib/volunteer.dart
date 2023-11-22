@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:ians_first_flutter_project/widgets.dart';
 
 Future<void> volunteerDialogBuilder(
-    BuildContext context, AuthModel authModel, String entryId, String dutyId, CalendarModel model) {
+    BuildContext context, AuthModel authModel, String entryId, String dutyId, DutiesModel model) {
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
@@ -55,7 +55,7 @@ Future<void> volunteerDialogBuilder(
   );
 }
 
-Future<(bool, String)> volunteerForDuties(AuthModel authModel, Duty duty, CalendarModel model) async {
+Future<(bool, String)> volunteerForDuties(AuthModel authModel, Duty duty, DutiesModel model) async {
   print("user name is: ${authModel.username}");
   print("duty is: ${duty.name}");
   print("calendar entry is: ${model.entryForDutyId(duty.id).name}");

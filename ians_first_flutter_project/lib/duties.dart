@@ -11,7 +11,7 @@ class DutiesPageRoute extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CalendarModel>(
+    return Consumer<DutiesModel>(
       builder: (context, duties, child) {
         return Scaffold(
           appBar: AppBar(
@@ -20,7 +20,7 @@ class DutiesPageRoute extends StatelessWidget {
             }),
           ),
           body: ListView(children: [
-            DutyPage(title: "foo", model: duties),
+            DutyPage(title: "foo"),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -35,34 +35,31 @@ class DutiesPageRoute extends StatelessWidget {
 }
 
 class DutyPage extends StatefulWidget {
-  const DutyPage({super.key, required this.title, required this.model});
+  const DutyPage({super.key, required this.title});
 
   final String title;
-  final CalendarModel model;
 
   @override
-  State<DutyPage> createState() => _DutyPageState(model: model);
+  State<DutyPage> createState() => _DutyPageState();
 }
 
 class _DutyPageState extends State<DutyPage> {
-  _DutyPageState({required this.model});
-
-  final CalendarModel model;
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthModel>(builder: (context, authModel, child) {
-      return FutureBuilder<int>(
-          future: fetchDuties(authModel, model),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Column(children: _createEventsList(authModel, model));
-            } else if (snapshot.hasError) {
-              return Text('${snapshot.error}');
-            }
-            // By default, show a loading spinner.
-            return const Text("loading...");
-          });
+      return Consumer<DutiesModel>(builder: (context, dutiesModel, child) {
+        return FutureBuilder<int>(
+            future: fetchDuties(authModel, dutiesModel),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Column(children: _createEventsList(authModel, dutiesModel));
+              } else if (snapshot.hasError) {
+                return Text('${snapshot.error}');
+              }
+              // By default, show a loading spinner.
+              return const Text("loading...");
+            });
+      });
     });
   }
 
@@ -78,7 +75,7 @@ class CalendarEntryCard extends StatelessWidget {
   final String entryId;
   final AuthModel authModel;
 
-  List<Widget> _createButton(BuildContext context, CalendarModel model, String entryId, String dutyId) {
+  List<Widget> _createButton(BuildContext context, DutiesModel model, String entryId, String dutyId) {
     List<Widget> widgets = List.empty(growable: true);
     var duty = model.dutyById(dutyId);
     switch (duty.status) {
@@ -131,7 +128,7 @@ class CalendarEntryCard extends StatelessWidget {
     return widgets;
   }
 
-  List<Widget> _createDutiesList(BuildContext context, CalendarModel model, AuthModel authModel) {
+  List<Widget> _createDutiesList(BuildContext context, DutiesModel model, AuthModel authModel) {
     List<Widget> widgets = List.filled(model.entryById(entryId).duties.length, const Text(""), growable: false);
     int i = 0;
     for (var duty in model.entryById(entryId).duties) {
@@ -157,7 +154,7 @@ class CalendarEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CalendarModel>(builder: (context, model, child) {
+    return Consumer<DutiesModel>(builder: (context, model, child) {
       return Center(
         child: Card(
           color: baseColourLight3,
@@ -186,7 +183,8 @@ class CalendarEntryCard extends StatelessWidget {
   }
 }
 
-Future<int> fetchDuties(AuthModel authModel, CalendarModel model) async {
+Future<int> fetchDuties(AuthModel authModel, DutiesModel model) async {
+  print("**** fetchDuties for ${authModel.username} ****");
   List<CalendarEntry> result = List.empty(growable: true);
 
   final response =
@@ -198,7 +196,7 @@ Future<int> fetchDuties(AuthModel authModel, CalendarModel model) async {
     for (var element in jsonList) {
       result.add(CalendarEntry.fromJson(element));
     }
-    model.load(result);
+    model.initialLoad(result);
 
     // don' really need anything here, as all we need is in the model which is AppState
     return result.length;
@@ -211,7 +209,7 @@ Future<int> fetchDuties(AuthModel authModel, CalendarModel model) async {
 
 // curl  https://myclub.run/api/clubs/hampton/duties | jq
 
-List<Widget> _createEventsList(AuthModel authModel, CalendarModel model) {
+List<Widget> _createEventsList(AuthModel authModel, DutiesModel model) {
   List<Widget> result = List.empty(growable: true);
   result.add(Text("loaded ${model.entries.length} entries"));
 

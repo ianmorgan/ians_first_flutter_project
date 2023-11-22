@@ -10,7 +10,7 @@ import 'widgets.dart';
 void main() {
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => CalendarModel()),
+      ChangeNotifierProvider(create: (context) => DutiesModel()),
       ChangeNotifierProvider(create: (context) => AuthModel())
     ],
     child: const MyApp(),
@@ -163,7 +163,8 @@ class LoginFormState extends State<LoginForm> {
 }
 
 Future<http.Response> doRequestToken(String username) {
-  return http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken'), body: '{"username":"${username}"}');
+  // ShortLived
+  return http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken?authMode=Production'), body: '{"username":"$username"}');
 }
 
 Future<dynamic> successLogin(BuildContext context, String username, String token, AuthModel authModel) {
@@ -174,10 +175,4 @@ Future<dynamic> successLogin(BuildContext context, String username, String token
       MaterialPageRoute(
         builder: (context) => const DutiesPageRoute(),
       ));
-}
-
-Future<http.Response> doLogin2(String username) {
-  var json = '{"username":"$username"}';
-  return http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken'),
-      headers: {"Content-Type": "application/json"}, body: json);
 }

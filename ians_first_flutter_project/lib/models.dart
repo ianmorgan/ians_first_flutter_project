@@ -49,10 +49,10 @@ class CalendarEntry {
   factory CalendarEntry.fromJson(Map<String, dynamic> json) {
     List<Duty> deserialisedDuties = List.empty(growable: true);
 
-    // ignore: avoid_function_literals_in_foreach_calls
-    (json['duties'] as Iterable).forEach((e) => deserialisedDuties.add(Duty.fromJson(e)));
+    for (var item in json['duties'] as Iterable) {
+      deserialisedDuties.add(Duty.fromJson(item));
+    }
 
-    // xxx
     return CalendarEntry(
         id: json['id'] as String,
         name: json['name'] as String,
@@ -61,15 +61,15 @@ class CalendarEntry {
   }
 }
 
-class CalendarModel extends ChangeNotifier {
+class DutiesModel extends ChangeNotifier {
   List<CalendarEntry> _entries = [];
 
   /// An unmodifiable view of the items in the cart.
   UnmodifiableListView<CalendarEntry> get entries => UnmodifiableListView(_entries);
 
-  void load(List<CalendarEntry> entries) {
+  void initialLoad(List<CalendarEntry> entries) {
+    // note, no notifications here as it all called in part of the initState
     _entries = entries;
-    notifyListeners();
   }
 
   void assignDuty(String dutyId, String user) {

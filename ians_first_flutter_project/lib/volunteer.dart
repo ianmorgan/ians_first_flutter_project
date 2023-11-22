@@ -26,9 +26,9 @@ Future<void> volunteerDialogBuilder(
                 //print("aa");
                 if (value.$1) {
                   duty.status = DutyStatus.Assigned;
-                  SuccessSnackBar("You have volunteered for ${duty.name}. Please check your email for full details.").build(context);
-                }
-                else {
+                  SuccessSnackBar("You have volunteered for ${duty.name}. Please check your email for full details.")
+                      .build(context);
+                } else {
                   ErrorSnackBar("There was a problem:\n '${value.$2}'").build(context);
                 }
               });
@@ -56,13 +56,13 @@ Future<void> volunteerDialogBuilder(
 }
 
 Future<(bool, String)> volunteerForDuties(AuthModel authModel, Duty duty, CalendarModel model) async {
-  //List<CalendarEntry> result = List.empty(growable: true);
-//            "/api/clubs/{club}/duties/duty/{duty}/doVolunteer" bind Method.POST to {
   print("user name is: ${authModel.username}");
   print("duty is: ${duty.name}");
   print("calendar entry is: ${model.entryForDutyId(duty.id).name}");
-  final response = await http.post(Uri.parse(
-      'https://myclub.run/api/clubs/hampton/duties/duty/${duty.id}/doVolunteer?username=${authModel.username}&doubleSubmitToken=123456'));
+  final response = await http.post(
+      Uri.parse(
+          'https://myclub.run/api/clubs/hampton/duties/duty/${duty.id}/doVolunteer?username=${authModel.username}&doubleSubmitToken=123456'),
+      headers: {"JWT": authModel.token});
   print(response.statusCode);
   print(response.body);
   if (response.statusCode == 200) {

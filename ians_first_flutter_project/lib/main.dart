@@ -124,16 +124,21 @@ class LoginFormState extends State<LoginForm> {
                 onPressed: () {
                   // Validate returns true if the form is valid, or false otherwise.
                   if (_formKey.currentState!.validate()) {
-                    doLogin(myController.text).then((value) => {
+                    doRequestToken(myController.text).then((value) => {
                           if (value.statusCode == 200)
-                            {successLogin(context, myController.text, authModel)}
+                            // note, the response contains the token
+                            {successLogin(context, myController.text, value.body, authModel)}
                           else if (value.statusCode == 401)
                             {
-                              ErrorSnackBar("Not authorised, please check the name. (status code = ${value.statusCode})")
+                              ErrorSnackBar(
+                                      "Not authorised, please check the name. (status code = ${value.statusCode})")
                                   .build(context)
                             }
                           else
-                            {ErrorSnackBar("Opps, that failed. (status code = ${value.statusCode}) )").build(context)}
+                            {
+                              ErrorSnackBar("Opps, that failed. (status code = ${value.statusCode}) ) - ${value.body}")
+                                  .build(context)
+                            }
                         });
 
                     // If the form is valid, display a snackbar. In the real world,
@@ -157,12 +162,12 @@ class LoginFormState extends State<LoginForm> {
   }
 }
 
-Future<http.Response> doLogin(String username) {
-  return http.get(Uri.parse('https://myclub.run/auth/doLogin?username=$username&password=&from='));
+Future<http.Response> doRequestToken(String username) {
+  return http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken'), body: '{"username":"${username}"}');
 }
 
-Future<dynamic> successLogin(BuildContext context, String username, AuthModel authModel) {
-  authModel.login(username);
+Future<dynamic> successLogin(BuildContext context, String username, String token, AuthModel authModel) {
+  authModel.login(username, token);
   SuccessSnackBar("Successfully logged in as $username").build(context);
   return Navigator.push(
       context,
@@ -173,6 +178,6 @@ Future<dynamic> successLogin(BuildContext context, String username, AuthModel au
 
 Future<http.Response> doLogin2(String username) {
   var json = '{"username":"$username"}';
-  return http.post(Uri.parse('https://myclub.run/auth/api/doLogin'),
+  return http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken'),
       headers: {"Content-Type": "application/json"}, body: json);
 }

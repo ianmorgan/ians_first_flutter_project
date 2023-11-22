@@ -176,7 +176,8 @@ class CalendarEntryCard extends StatelessWidget {
               Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start, children: _createDutiesList(context, model, authModel))),
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: _createDutiesList(context, model, authModel))),
             ],
           ),
         ),
@@ -186,10 +187,10 @@ class CalendarEntryCard extends StatelessWidget {
 }
 
 Future<int> fetchDuties(AuthModel authModel, CalendarModel model) async {
-  print("**** fetchDuties has been called!! ****");
   List<CalendarEntry> result = List.empty(growable: true);
 
-  final response = await http.get(Uri.parse('https://myclub.run/api/clubs/hampton/duties'));
+  final response =
+      await http.get(Uri.parse('https://myclub.run/api/clubs/hampton/duties'), headers: {"JWT": authModel.token});
 
   if (response.statusCode == 200) {
     Iterable jsonList = jsonDecode(response.body);
@@ -204,7 +205,7 @@ Future<int> fetchDuties(AuthModel authModel, CalendarModel model) async {
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('Failed to load album');
+    throw Exception('Failed to load the duties ${response.body} (${response.statusCode})');
   }
 }
 

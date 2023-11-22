@@ -9,10 +9,12 @@ class AuthModel extends ChangeNotifier {
   bool isLoggedIn = false;
   String username = "???";
   String authToken = "???";
+  String token = "???";
 
-  void login(String username) {
+  void login(String username, String token) {
     isLoggedIn = true;
     this.username = username;
+    this.token = token;
     notifyListeners();
   }
 }

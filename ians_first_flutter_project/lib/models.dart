@@ -108,4 +108,8 @@ class DutiesModel extends ChangeNotifier {
     }
     throw ("No CalendarEntry with a Duty of id: '$dutyId' ");
   }
+
+  void notifyAll() {
+    notifyListeners();
+  }
 }

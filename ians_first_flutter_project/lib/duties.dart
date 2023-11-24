@@ -18,7 +18,10 @@ class DutiesPageRoute extends StatelessWidget {
               appBar: AppBar(
                 title: Consumer<AuthModel>(builder: (context, authModel, child) {
                   return Text('Duties Page ${authModel.username}');
-                }),
+                })
+                ,
+
+
               ),
               body: RefreshIndicator(
                 onRefresh: () async {
@@ -29,7 +32,7 @@ class DutiesPageRoute extends StatelessWidget {
 
                   // Example of a delay to simulate an asynchronous operation
                   await fetchDuties(authModel, duties);
-                  duties.notifyListeners();
+                  duties.notifyAll();
                 },
                 child: ListView(children: [
                   DutyPage(title: "foo"),

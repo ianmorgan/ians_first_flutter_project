@@ -63,13 +63,23 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  TabController? _myController;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: baseColour,
         title: Text(widget.title, textAlign: TextAlign.center),
+        bottom: TabBar(
+          tabs: [
+            Tab(icon: Icon(Icons.home), text: 'Home'),
+            Tab(icon: Icon(Icons.task), text: 'Tasks'),
+            Tab(icon: Icon(Icons.person), text: 'Profile'),
+          ],
+          controller: _myController,
+        ),
       ),
       body: const Center(
           child: Column(
@@ -82,6 +92,18 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       )),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _myController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _myController!.dispose();
   }
 }
 

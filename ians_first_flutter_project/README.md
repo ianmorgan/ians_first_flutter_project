@@ -25,3 +25,6 @@ https://docs.flutter.dev/cookbook/forms/retrieve-input
 ### sending and recieving data 
 https://docs.flutter.dev/cookbook/networking/send-data
 
+### icons
+https://www.freecodecamp.org/news/how-to-add-custom-icons-to-your-flutter-application/
+

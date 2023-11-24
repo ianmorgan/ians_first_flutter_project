@@ -64,34 +64,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
-  TabController? _myController;
+  late TabController _myController;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: baseColour,
-        title: Text(widget.title, textAlign: TextAlign.center),
-        bottom: TabBar(
-          tabs: [
-            Tab(icon: Icon(Icons.home), text: 'Home'),
-            Tab(icon: Icon(Icons.task), text: 'Tasks'),
-            Tab(icon: Icon(Icons.person), text: 'Profile'),
-          ],
-          controller: _myController,
-        ),
-      ),
-      body: const Center(
-          child: Column(
-        children: [
-          LoginForm(),
-          ElevatedButton(
-            onPressed: _launchHomePage,
-            child: Text('Show the homepage'),
+        appBar: AppBar(
+          backgroundColor: baseColour,
+          title: Text(widget.title, textAlign: TextAlign.center),
+          bottom: TabBar(
+            tabs: [
+              const Tab(icon: Icon(Icons.home), text: 'Home'),
+              const Tab(icon: Icon(Icons.task), text: 'Tasks'),
+              const Tab(icon: Icon(Icons.settings), text: 'Settings'),
+            ],
+            controller: _myController,
           ),
-        ],
-      )),
-    );
+        ),
+        body: TabBarView(controller: _myController, children: [
+          buildHomePage(context),
+          Text("tab 2"),
+          Text("tab 3"),
+        ]));
   }
 
   @override
@@ -103,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   void dispose() {
     super.dispose();
-    _myController!.dispose();
+    _myController.dispose();
   }
 }
 
@@ -121,7 +115,7 @@ class LoginFormState extends State<LoginForm> {
   // Create a global key that uniquely identifies the Form widget and allows validation of the form.
 
   final _formKey = GlobalKey<FormState>();
-  final myController = TextEditingController();
+  final _myController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +132,7 @@ class LoginFormState extends State<LoginForm> {
                 }
                 return null;
               },
-              controller: myController,
+              controller: _myController,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -146,10 +140,10 @@ class LoginFormState extends State<LoginForm> {
                 onPressed: () {
                   // Validate returns true if the form is valid, or false otherwise.
                   if (_formKey.currentState!.validate()) {
-                    doRequestToken(myController.text).then((value) => {
+                    doRequestToken(_myController.text).then((value) => {
                           if (value.statusCode == 200)
                             // note, the response contains the token
-                            {successLogin(context, myController.text, value.body, authModel)}
+                            {successLogin(context, _myController.text, value.body, authModel)}
                           else if (value.statusCode == 401)
                             {
                               ErrorSnackBar(
@@ -178,15 +172,15 @@ class LoginFormState extends State<LoginForm> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
-    myController.dispose();
+    _myController.dispose();
     super.dispose();
   }
 }
 
 Future<http.Response> doRequestToken(String username) {
   // ShortLived
-  return http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken?authMode=Production'), body: '{"username":"$username"}');
+  return http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken?authMode=Production'),
+      body: '{"username":"$username"}');
 }
 
 Future<dynamic> successLogin(BuildContext context, String username, String token, AuthModel authModel) {
@@ -197,4 +191,17 @@ Future<dynamic> successLogin(BuildContext context, String username, String token
       MaterialPageRoute(
         builder: (context) => const DutiesPageRoute(),
       ));
+}
+
+Widget buildHomePage(BuildContext context) {
+  return Consumer<AuthModel>(builder: (context, authModel, child) {
+    return Center(
+        child: Column(children: [
+          LoginForm(),
+          ElevatedButton(
+            onPressed: _launchHomePage,
+            child: Text('Show the homepage'),
+          )
+        ]));
+  });
 }

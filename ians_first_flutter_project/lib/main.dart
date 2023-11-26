@@ -6,6 +6,8 @@ import 'duties.dart';
 import 'models.dart';
 import 'const.dart';
 import 'widgets.dart';
+import 'login.dart';
+
 
 void main() {
   runApp(MultiProvider(
@@ -49,7 +51,8 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          home: const MyHomePage(title: 'Please Login'),
+          home: LoginPage()
+          //home: const MyHomePage(title: 'Please Login'),
         ));
   }
 }
@@ -185,7 +188,7 @@ Future<http.Response> doRequestToken(String username) {
 
 Future<dynamic> successLogin(BuildContext context, String username, String token, AuthModel authModel) {
   authModel.login(username, token);
-  SuccessSnackBar("Successfully logged in as $username").build(context);
+  //SuccessSnackBar("Successfully logged in as $username").build(context);
   return Navigator.push(
       context,
       MaterialPageRoute(

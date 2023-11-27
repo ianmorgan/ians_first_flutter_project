@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'models.dart';
 import 'const.dart';
-import 'widgets.dart';
 import 'login.dart';
 
 void main() {
@@ -101,107 +100,6 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 }
 
-// Define a custom Form widget.
-class LoginForm extends StatefulWidget {
-  const LoginForm({super.key});
-
-  @override
-  State<LoginForm> createState() => LoginFormState();
-}
-
-// Define a corresponding State class.
-// This class holds data related to the form.
-class LoginFormState extends State<LoginForm> {
-  // Create a global key that uniquely identifies the Form widget and allows validation of the form.
-
-  final _formKey = GlobalKey<FormState>();
-  final _myController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    // Build a Form widget using the _formKey created above.
-    return Consumer<AuthModel>(builder: (context, authModel, child) {
-      return Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            Text(" ${authModel.username} - ${authModel.isCallingApi}" ),
-            TextFormField(
-              validator: (value) {
-                if (value == null || value.isEmpty || value.length < 3) {
-                  return 'Please enter a user name (at least 3 characters)';
-                }
-                return null;
-              },
-              controller: _myController,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Validate returns true if the form is valid, or false otherwise.
-                  if (_formKey.currentState!.validate()) {
-                    // FutureBuilder(
-                    //     future: doRequestToken(_myController.text),
-                    //     builder: (context, data) {
-                    //       print("*** in builder *** " + data.hasData.toString());
-                    //       if (data.hasData) {
-                    //         if (data.data!.statusCode == 200) {
-                    //
-                    //             //successLogin(context, _myController.text, data.data!.body, authModel);
-                    //             authModel.login(_myController.text, data.data!.body);
-                    //
-                    //             WidgetsBinding.instance.addPostFrameCallback((_) =>
-                    //                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    //                   return DutiesPageRoute();
-                    //                 })));
-                    //
-                    //         }
-                    //         return Text(data.data!.body);
-                    //       } else {
-                    //         return Center(child: CircularProgressIndicator());
-                    //       }
-                    //     });
-
-                    authModel.startLogin(_myController.text, "password");
-                    doRequestToken(_myController.text).then((value) => {
-                        if (value.statusCode == 200)
-                            // note, the response contains the token
-                            {doSuccessLogin(context,  value.body, authModel)}
-                          else if (value.statusCode == 401)
-                            {
-                              ErrorSnackBar(
-                                      "Not authorised, please check the name. (status code = ${value.statusCode})")
-                                  .build(context)
-                            }
-                          else
-                            {
-                              ErrorSnackBar("Opps, that failed. (status code = ${value.statusCode}) ) - ${value.body}")
-                                  .build(context)
-                            }
-                        });
-
-
-                    // If the form is valid, display a snackbar. In the real world,
-                    // you'd often call a server or save the information in a database.
-                  }
-                },
-                child: const Text('Login'),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _myController.dispose();
-    super.dispose();
-  }
-}
-
 
 
 
@@ -209,7 +107,7 @@ Widget buildHomePage(BuildContext context) {
   return Consumer<AuthModel>(builder: (context, authModel, child) {
     return Center(
         child: Column(children: [
-      LoginForm(),
+      Text("Login page was here !!!!"),
       ElevatedButton(
         onPressed: _launchHomePage,
         child: Text('Show the homepage'),

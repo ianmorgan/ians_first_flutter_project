@@ -5,7 +5,8 @@ import 'package:http/http.dart' as http;
 import 'main.dart';
 import 'models.dart';
 import 'widgets.dart';
-import 'duties.dart';
+import 'const.dart';
+import 'app-page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -44,61 +45,58 @@ class _LoginPageState extends State<LoginPage> {
           authModel.isLoggedIn ? "Welcome Back" : "Please Login",
           style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
-        const Text("Enter your credential to Login"),
+        const Text("Enter your credentials to Login"),
       ],
     );
   }
 
   _inputField(AuthModel authModel, context) {
-    final _userNameController = TextEditingController(text: authModel.displayableUserName());
-    final _passwordController = TextEditingController(text: authModel.attemptedPassword);
+    final userNameController = TextEditingController(text: authModel.displayableUserName());
+    final passwordController = TextEditingController(text: authModel.attemptedPassword);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text("user: ${authModel.username}, isLoggedId ${authModel.isLoggedIn}, isCallingApi ${authModel.isCallingApi}"),
+        //Text("user: ${authModel.username}, isLoggedId ${authModel.isLoggedIn}, isCallingApi ${authModel.isCallingApi}"),
         TextFormField(
-          decoration: InputDecoration(
-              hintText: "Username",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
-              fillColor: Colors.purple.withOpacity(0.1),
-              filled: true,
-              prefixIcon: const Icon(Icons.person)),
-          controller: _userNameController
-        ),
+            decoration: InputDecoration(
+                hintText: "Username",
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
+                fillColor: baseColour.withOpacity(0.1),
+                filled: true,
+                prefixIcon: const Icon(Icons.person)),
+            controller: userNameController),
         const SizedBox(height: 10),
         TextField(
           decoration: InputDecoration(
             hintText: "Password",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(18), borderSide: BorderSide.none),
-            fillColor: Colors.purple.withOpacity(0.1),
+            fillColor: baseColour.withOpacity(0.1),
             filled: true,
             prefixIcon: const Icon(Icons.password),
           ),
-          controller: _passwordController,
+          controller: passwordController,
           obscureText: true,
         ),
         const SizedBox(height: 10),
         ElevatedButton(
           onPressed: () {
             // hardcode at the moment
-            authModel.startLogin(_userNameController.text, _passwordController.text);
-            doRequestToken(_userNameController.text)
+            authModel.startLogin(userNameController.text, passwordController.text);
+            doRequestToken(userNameController.text)
                 .then((value) => {doProcessResult(context, value, authModel)})
-                .onError((error, stackTrace) => {
-                      doProcessError(context, error, authModel)
-                    });
+                .onError((error, stackTrace) => {doProcessError(context, error, authModel)});
           },
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
             padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Colors.purple,
+            backgroundColor: baseAnalogous1
           ),
           child: authModel.isCallingApi
               ? const CircularProgressIndicator()
               : const Text(
                   "Login",
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(fontSize: 20, color: whiteText),
                 ),
         )
       ],
@@ -110,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
       onPressed: () {},
       child: const Text(
         "Forgot password?",
-        style: TextStyle(color: Colors.purple),
+        style: TextStyle(color: baseColour),
       ),
     );
   }
@@ -130,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
             },
             child: const Text(
               "Sign Up",
-              style: TextStyle(color: Colors.purple),
+              style: TextStyle(color: baseColour),
             ))
       ],
     );
@@ -138,7 +136,6 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 void doProcessResult(BuildContext context, http.Response response, AuthModel authModel) {
-  //print("*** in doProcessResult ****");
   if (response.statusCode == 200) {
     // note, the response contains the token
     doSuccessLogin(context, response.body, authModel);
@@ -147,7 +144,8 @@ void doProcessResult(BuildContext context, http.Response response, AuthModel aut
     const ErrorSnackBar("Not authorised, please check the username and password").build(context);
   } else {
     authModel.cancelLogin();
-    ErrorSnackBar("Sorry, something went wrong. ('${response.body}'). Please try again after a short delay.").build(context);
+    ErrorSnackBar("Sorry, something went wrong. ('${response.body}'). Please try again after a short delay.")
+        .build(context);
   }
 }
 
@@ -165,9 +163,9 @@ Future<http.Response> doRequestToken(String username) {
 Future<dynamic> doSuccessLogin(BuildContext context, String token, AuthModel authModel) {
   authModel.completeLogin(token);
   SuccessSnackBar("Logged in as '${authModel.username}'").build(context);
-  return Navigator.push(
-      context,
+
+  return Navigator.of(context, rootNavigator: false).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => const DutiesPageRoute(),
+        builder: (context) => const AppPageRoute(),
       ));
 }

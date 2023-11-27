@@ -15,7 +15,6 @@ Widget buildDutiesPage(BuildContext buildContext) {
             if (snapshot.hasData) {
               return RefreshIndicator(
                   onRefresh: () async {
-                    print("**** refreshing page ***");
                     // Handle the refresh action here (e.g., fetch new data)
                     // You can call an API, update data, or perform any necessary tasks
                     // Remember to use asynchronous functions when performing async operations
@@ -28,88 +27,18 @@ Widget buildDutiesPage(BuildContext buildContext) {
             } else if (snapshot.hasError) {
               return Text('${snapshot.error}');
             }
-            // By default, show a loading spinner.
-            return const Text("loading...");
+            else {
+              return const Text("Fetching data....", style: TextStyle(color: baseColour));
+              // By default, show a loading spinner.
+              // return const Center(
+              //   child: CircularProgressIndicator(),
+              // );
+            }
           });
     });
   });
 }
 
-class DutiesPageRoute extends StatelessWidget {
-  const DutiesPageRoute({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<DutiesModel>(builder: (context, duties, child) {
-      return Consumer<AuthModel>(
-        builder: (context, authModel, child) {
-          return Scaffold(
-              appBar: AppBar(
-                title: Consumer<AuthModel>(builder: (context, authModel, child) {
-                  return Text('Duties Page ${authModel.username}');
-                }),
-              ),
-              body: RefreshIndicator(
-                onRefresh: () async {
-                  print("**** refreshing page ***");
-                  // Handle the refresh action here (e.g., fetch new data)
-                  // You can call an API, update data, or perform any necessary tasks
-                  // Remember to use asynchronous functions when performing async operations
-
-                  // Example of a delay to simulate an asynchronous operation
-                  await fetchDuties(authModel, duties);
-                  duties.notifyAll();
-                },
-                child: ListView(children: [
-                  DutyPage(title: "foo"),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Go back!'),
-                  )
-                ]),
-              ));
-        },
-      );
-    });
-  }
-}
-
-class DutyPage extends StatefulWidget {
-  const DutyPage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<DutyPage> createState() => _DutyPageState();
-}
-
-class _DutyPageState extends State<DutyPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AuthModel>(builder: (context, authModel, child) {
-      return Consumer<DutiesModel>(builder: (context, dutiesModel, child) {
-        return FutureBuilder<int>(
-            future: fetchDuties(authModel, dutiesModel),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Column(children: _createEventsList(authModel, dutiesModel));
-              } else if (snapshot.hasError) {
-                return Text('${snapshot.error}');
-              }
-              // By default, show a loading spinner.
-              return const Text("loading...");
-            });
-      });
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-}
 
 class CalendarEntryCard extends StatelessWidget {
   const CalendarEntryCard({super.key, required this.authModel, required this.entryId});

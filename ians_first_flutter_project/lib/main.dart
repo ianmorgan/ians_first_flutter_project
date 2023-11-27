@@ -5,6 +5,9 @@ import 'models.dart';
 import 'const.dart';
 import 'login.dart';
 
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+GlobalKey<ScaffoldMessengerState>();
+
 void main() {
   runApp(MultiProvider(
     providers: [

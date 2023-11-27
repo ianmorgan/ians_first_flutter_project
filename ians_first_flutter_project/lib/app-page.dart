@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'const.dart';
 import 'models.dart';
+import 'main.dart';
 
 class AppPageRoute extends StatefulWidget {
   const AppPageRoute({super.key});
@@ -17,24 +18,26 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: baseColour,
-          //title: Text("a title", textAlign: TextAlign.center),
-          bottom: TabBar(
-            tabs: [
-              const Tab(icon: Icon(Icons.home), text: 'Home'),
-              const Tab(icon: Icon(Icons.task), text: 'Tasks'),
-              const Tab(icon: Icon(Icons.settings), text: 'Settings'),
-            ],
-            controller: _myController,
-          ),
-        ),
-        body: TabBarView(controller: _myController, children: [
-          buildHomePage(context),
-          buildDutiesPage(context),
-          Text("tab 3"),
-        ]));
+    return ScaffoldMessenger(
+        key: scaffoldMessengerKey,
+        child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: baseColour,
+              //title: Text("a title", textAlign: TextAlign.center),
+              bottom: TabBar(
+                tabs: [
+                  const Tab(icon: Icon(Icons.home), text: 'Home'),
+                  const Tab(icon: Icon(Icons.task), text: 'Tasks'),
+                  const Tab(icon: Icon(Icons.settings), text: 'Settings'),
+                ],
+                controller: _myController,
+              ),
+            ),
+            body: TabBarView(controller: _myController, children: [
+              buildHomePage(context),
+              buildDutiesPage(context),
+              Text("tab 3"),
+            ])));
   }
 
   @override
@@ -47,6 +50,11 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
   void dispose() {
     super.dispose();
     _myController.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 }
 

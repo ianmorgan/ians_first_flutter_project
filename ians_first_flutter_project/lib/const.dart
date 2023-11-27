@@ -13,5 +13,8 @@ const baseAnalogous1 = Color.fromRGBO(60, 36, 219, 1);
 const whiteText = Color.fromRGBO(255, 255, 255, 1);
 const darkText = Color.fromRGBO(59, 67, 87, 1);
 
+// make all calls slow for testing
+const simulatedDelay = 3;
+
 
 //const darkText = Color.fromRGBO( // #3b4351

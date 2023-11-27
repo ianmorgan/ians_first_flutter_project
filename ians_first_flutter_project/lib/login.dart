@@ -141,17 +141,17 @@ void doProcessResult(BuildContext context, http.Response response, AuthModel aut
     doSuccessLogin(context, response.body, authModel);
   } else if (response.statusCode == 401) {
     authModel.cancelLogin();
-    const ErrorSnackBar("Not authorised, please check the username and password").build(context);
+    const ErrorSnackBar("Not authorised, please check the username and password").show();
   } else {
     authModel.cancelLogin();
     ErrorSnackBar("Sorry, something went wrong. ('${response.body}'). Please try again after a short delay.")
-        .build(context);
+        .show();
   }
 }
 
 void doProcessError(BuildContext context, error, AuthModel authModel) {
   authModel.cancelLogin();
-  ErrorSnackBar("Sorry, something went wrong, ('$error'). Please try again after a short delay").build(context);
+  ErrorSnackBar("Sorry, something went wrong, ('$error'). Please try again after a short delay").show();
 }
 
 Future<http.Response> doRequestToken(String username) {
@@ -162,7 +162,7 @@ Future<http.Response> doRequestToken(String username) {
 
 Future<dynamic> doSuccessLogin(BuildContext context, String token, AuthModel authModel) {
   authModel.completeLogin(token);
-  SuccessSnackBar("Logged in as '${authModel.username}'").build(context);
+  SuccessSnackBar("Logged in as '${authModel.username}'").show();
 
   return Navigator.of(context, rootNavigator: false).pushReplacement(
       MaterialPageRoute(

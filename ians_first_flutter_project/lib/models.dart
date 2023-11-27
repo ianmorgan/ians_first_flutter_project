@@ -7,16 +7,43 @@ enum DutyStatus { Unassigned, Assigned, Completed, Cancelled }
 
 class AuthModel extends ChangeNotifier {
   bool isLoggedIn = false;
-  String username = "???";
+  bool isReturningUser = false;
+  String username = "";
   String authToken = "???";
   String token = "???";
+  bool isCallingApi = false;
+  String attemptedUsername = "";
+  String attemptedPassword = "";
 
-  void login(String username, String token) {
+  void completeLogin(String token) {
     isLoggedIn = true;
-    this.username = username;
+    isReturningUser = true;
+    isCallingApi = false;
+    username = attemptedUsername;
+    attemptedUsername = "";
+    attemptedPassword = "";
     this.token = token;
     notifyListeners();
   }
+
+  void startLogin(String username, String password) {
+    isCallingApi = true;
+    attemptedUsername = username;
+    attemptedPassword = password;
+    notifyListeners();
+  }
+
+  void cancelLogin() {
+    isCallingApi = false;
+    attemptedPassword = "";
+    notifyListeners();
+  }
+
+  String displayableUserName() {
+    if (isLoggedIn) return username;
+    return attemptedUsername;
+  }
+
 }
 
 class Duty {

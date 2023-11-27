@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'duties.dart';
 import 'models.dart';
 import 'const.dart';
 import 'widgets.dart';
 import 'login.dart';
-
 
 void main() {
   runApp(MultiProvider(
@@ -128,6 +125,7 @@ class LoginFormState extends State<LoginForm> {
         key: _formKey,
         child: Column(
           children: <Widget>[
+            Text(" ${authModel.username} - ${authModel.isCallingApi}" ),
             TextFormField(
               validator: (value) {
                 if (value == null || value.isEmpty || value.length < 3) {
@@ -143,10 +141,33 @@ class LoginFormState extends State<LoginForm> {
                 onPressed: () {
                   // Validate returns true if the form is valid, or false otherwise.
                   if (_formKey.currentState!.validate()) {
+                    // FutureBuilder(
+                    //     future: doRequestToken(_myController.text),
+                    //     builder: (context, data) {
+                    //       print("*** in builder *** " + data.hasData.toString());
+                    //       if (data.hasData) {
+                    //         if (data.data!.statusCode == 200) {
+                    //
+                    //             //successLogin(context, _myController.text, data.data!.body, authModel);
+                    //             authModel.login(_myController.text, data.data!.body);
+                    //
+                    //             WidgetsBinding.instance.addPostFrameCallback((_) =>
+                    //                 Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    //                   return DutiesPageRoute();
+                    //                 })));
+                    //
+                    //         }
+                    //         return Text(data.data!.body);
+                    //       } else {
+                    //         return Center(child: CircularProgressIndicator());
+                    //       }
+                    //     });
+
+                    authModel.startLogin(_myController.text, "password");
                     doRequestToken(_myController.text).then((value) => {
-                          if (value.statusCode == 200)
+                        if (value.statusCode == 200)
                             // note, the response contains the token
-                            {successLogin(context, _myController.text, value.body, authModel)}
+                            {doSuccessLogin(context,  value.body, authModel)}
                           else if (value.statusCode == 401)
                             {
                               ErrorSnackBar(
@@ -159,6 +180,7 @@ class LoginFormState extends State<LoginForm> {
                                   .build(context)
                             }
                         });
+
 
                     // If the form is valid, display a snackbar. In the real world,
                     // you'd often call a server or save the information in a database.
@@ -180,31 +202,18 @@ class LoginFormState extends State<LoginForm> {
   }
 }
 
-Future<http.Response> doRequestToken(String username) {
-  // ShortLived
-  return http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken?authMode=Production'),
-      body: '{"username":"$username"}');
-}
 
-Future<dynamic> successLogin(BuildContext context, String username, String token, AuthModel authModel) {
-  authModel.login(username, token);
-  //SuccessSnackBar("Successfully logged in as $username").build(context);
-  return Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const DutiesPageRoute(),
-      ));
-}
+
 
 Widget buildHomePage(BuildContext context) {
   return Consumer<AuthModel>(builder: (context, authModel, child) {
     return Center(
         child: Column(children: [
-          LoginForm(),
-          ElevatedButton(
-            onPressed: _launchHomePage,
-            child: Text('Show the homepage'),
-          )
-        ]));
+      LoginForm(),
+      ElevatedButton(
+        onPressed: _launchHomePage,
+        child: Text('Show the homepage'),
+      )
+    ]));
   });
 }

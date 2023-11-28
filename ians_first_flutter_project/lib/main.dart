@@ -5,8 +5,7 @@ import 'models.dart';
 import 'const.dart';
 import 'login.dart';
 
-final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
-GlobalKey<ScaffoldMessengerState>();
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() {
   runApp(MultiProvider(
@@ -50,7 +49,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          home: LoginPage()
+          home: const LoginPage()
           //home: const MyHomePage(title: 'Please Login'),
         ));
   }

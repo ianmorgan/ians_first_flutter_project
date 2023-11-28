@@ -20,17 +20,20 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Consumer<AuthModel>(
       builder: (context, authModel, child) {
-        return Scaffold(
-          body: Container(
-            margin: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _header(authModel, context),
-                _inputField(authModel, context),
-                _forgotPassword(context),
-                _signup(context),
-              ],
+        return ScaffoldMessenger(
+          key: scaffoldMessengerKey,
+          child: Scaffold(
+            body: Container(
+              margin: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _header(authModel, context),
+                  _inputField(authModel, context),
+                  _forgotPassword(context),
+                  _signup(context),
+                ],
+              ),
             ),
           ),
         );
@@ -88,10 +91,9 @@ class _LoginPageState extends State<LoginPage> {
                 .onError((error, stackTrace) => {doProcessError(context, error, authModel)});
           },
           style: ElevatedButton.styleFrom(
-            shape: const StadiumBorder(),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: baseAnalogous1
-          ),
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: baseAnalogous1),
           child: authModel.isCallingApi
               ? const CircularProgressIndicator()
               : const Text(
@@ -117,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text("Dont have an account? "),
+        const Text("Don't have an account? "),
         TextButton(
             onPressed: () {
               Navigator.push(
@@ -144,8 +146,7 @@ void doProcessResult(BuildContext context, http.Response response, AuthModel aut
     const ErrorSnackBar("Not authorised, please check the username and password").show();
   } else {
     authModel.cancelLogin();
-    ErrorSnackBar("Sorry, something went wrong. ('${response.body}'). Please try again after a short delay.")
-        .show();
+    ErrorSnackBar("Sorry, something went wrong. ('${response.body}'). Please try again after a short delay.").show();
   }
 }
 
@@ -164,8 +165,7 @@ Future<dynamic> doSuccessLogin(BuildContext context, String token, AuthModel aut
   authModel.completeLogin(token);
   SuccessSnackBar("Logged in as '${authModel.username}'").show();
 
-  return Navigator.of(context, rootNavigator: false).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const AppPageRoute(),
-      ));
+  return Navigator.of(context, rootNavigator: false).pushReplacement(MaterialPageRoute(
+    builder: (context) => const AppPageRoute(),
+  ));
 }

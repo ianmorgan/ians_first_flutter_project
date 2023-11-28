@@ -57,29 +57,33 @@ class _HomePageState extends State<HomePage> {
 
 void _showLogoutConfirmation(BuildContext context, AuthModel authModel) {
   // set up the buttons
-  Widget cancelButton = OutlinedButton(
-    child: Text("Cancel"),
-    onPressed: () {
-      Navigator.of(context).pop();
-    },
-  );
-  Widget continueButton = OutlinedButton(
-    child: Text("Logout"),
-    onPressed: () {
-      Navigator.of(context).pop();
-      _doLogout(context, authModel);
-    },
-  );
-  // set up the AlertDialog
+  Widget cancelButton = TextButton(
+      style: TextButton.styleFrom(
+        textStyle: Theme.of(context).textTheme.labelLarge,
+      ),
+      child: const Text('Cancel'),
+      onPressed: () {
+        Navigator.of(context).pop();
+      });
+
+  Widget logoutButton = TextButton(
+      style: TextButton.styleFrom(
+        textStyle: Theme.of(context).textTheme.labelLarge,
+      ),
+      child: const Text('Logout'),
+      onPressed: () {
+        Navigator.of(context).pop();
+        _doLogout(context, authModel);
+      });
+
   AlertDialog alert = AlertDialog(
     title: const Text("Logout"),
     content: Text("${authModel.username}, would you like to logout?"),
     actions: [
       cancelButton,
-      continueButton,
+      logoutButton,
     ],
   );
-  // show the dialog
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -105,8 +109,8 @@ Future<bool> fetchUserProfile(AuthModel authModel, UserProfileModel userProfileM
   print("**** fetchUserProfile for ${authModel.username} ****");
 
   var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
-  final response =
-      await delay.then((value) => http.get(Uri.parse('https://myclub.run/api/${authModel.username}/profile'), headers: {"JWT": authModel.token}));
+  final response = await delay.then((value) =>
+      http.get(Uri.parse('https://myclub.run/api/${authModel.username}/profile'), headers: {"JWT": authModel.token}));
 
   if (response.statusCode == 200) {
     print("*** found a profile !!! ***");

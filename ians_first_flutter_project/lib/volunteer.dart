@@ -33,10 +33,6 @@ Future<void> volunteerDialogBuilder(
                 }
               });
 
-              //.then((bool, String)) => {});
-
-              //duty.status = DutyStatus.Assigned;
-
               Navigator.of(context).pop();
             },
           ),

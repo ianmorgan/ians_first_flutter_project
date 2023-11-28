@@ -30,6 +30,8 @@ class AuthModel extends ChangeNotifier {
     isCallingApi = true;
     attemptedUsername = username;
     attemptedPassword = password;
+    authToken = "";
+    token = "";
     notifyListeners();
   }
 
@@ -37,6 +39,15 @@ class AuthModel extends ChangeNotifier {
     isCallingApi = false;
     attemptedPassword = "";
     notifyListeners();
+  }
+
+  void logout() {
+    if (isLoggedIn) {
+      //isCallingApi = false;
+      isLoggedIn = false;
+      //attemptedPassword = "";
+      notifyListeners();
+    }
   }
 
   String displayableUserName() {

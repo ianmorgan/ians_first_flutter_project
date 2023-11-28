@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:ians_first_flutter_project/duties.dart';
 import 'package:provider/provider.dart';
 
 import 'const.dart';
 import 'models.dart';
 import 'main.dart';
+import 'home.dart';
+import 'duties.dart';
 
 class AppPageRoute extends StatefulWidget {
   const AppPageRoute({super.key});
@@ -34,7 +35,7 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
               ),
             ),
             body: TabBarView(controller: _myController, children: [
-              buildHomePage(context),
+              HomePage(),
               buildDutiesPage(context),
               Text("tab 3"),
             ])));

@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
               if (snapshot.hasData) {
                 return Center(
                     child: Column(children: [
-                  Text("Home page for ${authModel.username} - goes here"),
+                  Text("Home page for ${authModel.username} - ${userProfileModel.profile.email} goes here"),
                   ElevatedButton(
                     onPressed: () {
                       _launchHomePage(authModel.username);
@@ -104,10 +104,12 @@ Future<void> _launchHomePage(String username) async {
 Future<bool> fetchUserProfile(AuthModel authModel, UserProfileModel userProfileModel) async {
   print("**** fetchUserProfile for ${authModel.username} ****");
 
+  var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
   final response =
-      await http.get(Uri.parse('https://myclub.run/api/${authModel}/profile'), headers: {"JWT": authModel.token});
+      await delay.then((value) => http.get(Uri.parse('https://myclub.run/api/${authModel.username}/profile'), headers: {"JWT": authModel.token}));
 
   if (response.statusCode == 200) {
+    print("*** found a profile !!! ***");
     var profile = UserProfile.fromJson(jsonDecode(response.body));
     userProfileModel.initialLoad(profile);
     return true;

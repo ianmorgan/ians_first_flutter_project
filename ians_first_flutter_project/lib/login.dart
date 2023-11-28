@@ -158,7 +158,7 @@ void doProcessError(BuildContext context, error, AuthModel authModel, GlobalKey<
 }
 
 Future<http.Response> doRequestToken(String username) {
-  var delay = Future<int>.delayed(const Duration(seconds: 3), () => 0);
+  var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
   return delay.then((value) => http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken?authMode=Production'),
       body: '{"username":"$username"}'));
 }

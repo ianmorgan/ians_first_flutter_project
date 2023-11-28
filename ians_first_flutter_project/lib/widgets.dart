@@ -13,6 +13,10 @@ class ErrorSnackBar {
           .showSnackBar(SnackBar(content: Text(_message, style: const TextStyle(color: Colors.red))));
     }
   }
+
+  void showWithKey(GlobalKey<ScaffoldMessengerState> key) {
+    key.currentState!.showSnackBar(SnackBar(content: Text(_message, style: const TextStyle(color: Colors.red))));
+  }
 }
 
 class SuccessSnackBar {
@@ -25,5 +29,9 @@ class SuccessSnackBar {
       scaffoldMessengerKey.currentState!
           .showSnackBar(SnackBar(content: Text(_message, style: const TextStyle(color: Colors.green))));
     }
+  }
+
+  void showWithKey(GlobalKey<ScaffoldMessengerState> key) {
+    key.currentState!.showSnackBar(SnackBar(content: Text(_message, style: const TextStyle(color: Colors.green))));
   }
 }

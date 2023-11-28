@@ -54,7 +54,6 @@ class AuthModel extends ChangeNotifier {
     if (isLoggedIn) return username;
     return attemptedUsername;
   }
-
 }
 
 class Duty {
@@ -150,4 +149,29 @@ class DutiesModel extends ChangeNotifier {
   void notifyAll() {
     notifyListeners();
   }
+}
+
+//     data class UserProfile(val name: String, val email: String, val organisations: List<UUID>)
+
+class UserProfile {
+  final String name;
+  final String email;
+  final List<String> organisations;
+
+  UserProfile({required this.name, required this.email, required this.organisations});
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(name: json['name'] as String, email: json['email'] as String, organisations: []);
+  }
+}
+
+class UserProfileModel extends ChangeNotifier {
+  late UserProfile profile;
+
+  void initialLoad(UserProfile profile) {
+    // note, no notifications here as it all called in part of the initState
+    this.profile = profile;
+
+  }
+
 }

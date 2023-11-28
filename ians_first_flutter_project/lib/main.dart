@@ -11,7 +11,8 @@ void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => DutiesModel()),
-      ChangeNotifierProvider(create: (context) => AuthModel())
+      ChangeNotifierProvider(create: (context) => AuthModel()),
+      ChangeNotifierProvider(create: (context) => UserProfileModel())
     ],
     child: const MyApp(),
   ));

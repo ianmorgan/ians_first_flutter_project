@@ -16,12 +16,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthModel>(
       builder: (context, authModel, child) {
         return ScaffoldMessenger(
-          key: scaffoldMessengerKey,
+          key: _scaffoldMessengerKey,
           child: Scaffold(
             body: Container(
               margin: const EdgeInsets.all(24),
@@ -29,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _header(authModel, context),
-                  _inputField(authModel, context),
+                  _inputField(authModel, context, _scaffoldMessengerKey),
                   _forgotPassword(context),
                   _signup(context),
                 ],
@@ -53,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _inputField(AuthModel authModel, context) {
+  _inputField(AuthModel authModel, context, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
     final userNameController = TextEditingController(text: authModel.displayableUserName());
     final passwordController = TextEditingController(text: authModel.attemptedPassword);
 
@@ -87,8 +89,8 @@ class _LoginPageState extends State<LoginPage> {
             // hardcode at the moment
             authModel.startLogin(userNameController.text, passwordController.text);
             doRequestToken(userNameController.text)
-                .then((value) => {doProcessResult(context, value, authModel)})
-                .onError((error, stackTrace) => {doProcessError(context, error, authModel)});
+                .then((value) => {doProcessResult(context, value, authModel, scaffoldKey)})
+                .onError((error, stackTrace) => {doProcessError(context, error, authModel, scaffoldKey)});
           },
           style: ElevatedButton.styleFrom(
               shape: const StadiumBorder(),
@@ -137,22 +139,22 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-void doProcessResult(BuildContext context, http.Response response, AuthModel authModel) {
+void doProcessResult(BuildContext context, http.Response response, AuthModel authModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
   if (response.statusCode == 200) {
     // note, the response contains the token
-    doSuccessLogin(context, response.body, authModel);
+    doSuccessLogin(context, response.body, authModel, scaffoldKey);
   } else if (response.statusCode == 401) {
     authModel.cancelLogin();
-    const ErrorSnackBar("Not authorised, please check the username and password").show();
+    const ErrorSnackBar("Not authorised, please check the username and password").showWithKey(scaffoldKey);
   } else {
     authModel.cancelLogin();
-    ErrorSnackBar("Sorry, something went wrong. ('${response.body}'). Please try again after a short delay.").show();
+    ErrorSnackBar("Sorry, something went wrong. ('${response.body}'). Please try again after a short delay.").showWithKey(scaffoldKey);
   }
 }
 
-void doProcessError(BuildContext context, error, AuthModel authModel) {
+void doProcessError(BuildContext context, error, AuthModel authModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
   authModel.cancelLogin();
-  ErrorSnackBar("Sorry, something went wrong, ('$error'). Please try again after a short delay").show();
+  ErrorSnackBar("Sorry, something went wrong, ('$error'). Please try again after a short delay").showWithKey(scaffoldKey);
 }
 
 Future<http.Response> doRequestToken(String username) {
@@ -161,9 +163,9 @@ Future<http.Response> doRequestToken(String username) {
       body: '{"username":"$username"}'));
 }
 
-Future<dynamic> doSuccessLogin(BuildContext context, String token, AuthModel authModel) {
+Future<dynamic> doSuccessLogin(BuildContext context, String token, AuthModel authModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
   authModel.completeLogin(token);
-  SuccessSnackBar("Logged in as '${authModel.username}'").show();
+  SuccessSnackBar("Logged in as '${authModel.username}'").showWithKey(scaffoldKey);
 
   return Navigator.of(context, rootNavigator: false).pushReplacement(MaterialPageRoute(
     builder: (context) => const AppPageRoute(),

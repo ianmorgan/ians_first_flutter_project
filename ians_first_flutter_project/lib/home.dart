@@ -24,22 +24,15 @@ class _HomePageState extends State<HomePage> {
             future: fetchUserProfile(authModel, userProfileModel),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                return Center(
-                    child: Column(children: [
-                  Text("Home page for ${authModel.username} - ${userProfileModel.profile.email} goes here"),
-                  ElevatedButton(
-                    onPressed: () {
-                      _launchHomePage(authModel.username);
-                    }, //_launchHomePage,
-                    child: const Text('Open your home page on the website'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _showLogoutConfirmation(context, authModel);
-                    }, //_launchHomePage,
-                    child: const Text('Logout'),
-                  )
-                ]));
+                return Container(
+                    margin: const EdgeInsets.all(16),
+                    child: ListView(
+                      children: [
+                        _header(userProfileModel.profile),
+                        buildClubs(context, userProfileModel.profile, authModel),
+                        Center(child: Column(children: [buildHomePageButton(authModel), buildLogoutButton(authModel)]))
+                      ],
+                    ));
               } else if (snapshot.hasError) {
                 return Text('${snapshot.error}');
               } else {
@@ -52,6 +45,90 @@ class _HomePageState extends State<HomePage> {
             });
       });
     });
+  }
+
+  Widget buildHomePageButton(AuthModel authModel) {
+    return ElevatedButton(
+      onPressed: () {
+        _launchHomePage(authModel.username);
+      }, //_launchHomePage,
+      child: const Text('View on website'),
+    );
+  }
+
+  Widget buildLogoutButton(AuthModel authModel) {
+    return ElevatedButton(
+      onPressed: () {
+        _showLogoutConfirmation(context, authModel);
+      }, //_launchHomePage,
+      child: const Text('Logout'),
+    );
+  }
+
+  Widget buildClubCard2(ClubProfile club, AuthModel authModel) {
+    return Card(
+        color: baseColourLight3,
+        child:
+            Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
+          ListTile(
+            textColor: baseAnalogous1,
+            leading: const Icon(Icons.calendar_month, color: baseAnalogous1),
+            titleTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            title: Text(club.name),
+            //subtitle: Text("a subitle"),
+            subtitleTextStyle: const TextStyle(fontSize: 16),
+          ),
+          Text("Club card for ${club.name} goes here"),
+          _buildClubSelectionState(club, authModel)
+        ]));
+  }
+
+  _buildClubSelectionState(ClubProfile club, AuthModel authModel) {
+    if (club.slug == authModel.selectedClub) {
+      return Text("This club is active");
+    } else {
+      return ElevatedButton(
+          onPressed: () {
+            authModel.selectClub(club.slug);
+          },
+          child: Text("Select this Club"));
+    }
+  }
+
+  Widget buildClubCard(ClubProfile club) {
+    return Card(
+        color: baseColourLight3,
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[Text("Club card for ${club.name} goes here")]));
+  }
+
+  // Column(
+  // crossAxisAlignment: CrossAxisAlignment.stretch,
+
+  Widget buildClubs(BuildContext context, UserProfile profile, AuthModel authModel) {
+    List<Widget> result = List.empty(growable: true);
+    result.add(Text("There are ${profile.clubs.length} clubs"));
+
+    for (var club in profile.clubs) {
+      result.add(buildClubCard2(club, authModel));
+    }
+
+    return Column(
+      children: result,
+    );
+  }
+
+  _header(UserProfile profile) {
+    return Column(
+      children: [
+        Text(
+          "Hello ${profile.name}",
+          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: baseAnalogous1),
+        ),
+        const Text("This is your home page."),
+      ],
+    );
   }
 }
 
@@ -79,10 +156,7 @@ void _showLogoutConfirmation(BuildContext context, AuthModel authModel) {
   AlertDialog alert = AlertDialog(
     title: const Text("Logout"),
     content: Text("${authModel.username}, would you like to logout?"),
-    actions: [
-      cancelButton,
-      logoutButton
-    ],
+    actions: [cancelButton, logoutButton],
   );
   showDialog(
     context: context,

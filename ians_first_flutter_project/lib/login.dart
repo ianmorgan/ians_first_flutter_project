@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _header(authModel, context),
+                  _header(authModel),
                   _inputField(authModel, context, _scaffoldMessengerKey),
                   _forgotPassword(context),
                   _signup(context),
@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _header(AuthModel authModel, context) {
+  _header(AuthModel authModel) {
     return Column(
       children: [
         Text(

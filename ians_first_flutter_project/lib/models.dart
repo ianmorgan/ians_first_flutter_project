@@ -14,6 +14,7 @@ class AuthModel extends ChangeNotifier {
   bool isCallingApi = false;
   String attemptedUsername = "";
   String attemptedPassword = "";
+  String selectedClub = "hampton";
 
   void completeLogin(String token) {
     isLoggedIn = true;
@@ -38,6 +39,11 @@ class AuthModel extends ChangeNotifier {
   void cancelLogin() {
     isCallingApi = false;
     attemptedPassword = "";
+    notifyListeners();
+  }
+
+  void selectClub(String club) {
+    selectedClub = club;
     notifyListeners();
   }
 
@@ -151,17 +157,32 @@ class DutiesModel extends ChangeNotifier {
   }
 }
 
-//     data class UserProfile(val name: String, val email: String, val organisations: List<UUID>)
-
 class UserProfile {
   final String name;
   final String email;
-  final List<String> organisations;
+  final List<ClubProfile> clubs;
 
-  UserProfile({required this.name, required this.email, required this.organisations});
+  UserProfile({required this.name, required this.email, required this.clubs});
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
-    return UserProfile(name: json['name'] as String, email: json['email'] as String, organisations: []);
+    List<ClubProfile> deserialisedClubs = List.empty(growable: true);
+
+    for (var item in json['clubs'] as Iterable) {
+      deserialisedClubs.add(ClubProfile.fromJson(item));
+    }
+
+    return UserProfile(name: json['name'] as String, email: json['email'] as String, clubs: deserialisedClubs);
+  }
+}
+
+class ClubProfile {
+  final String name;
+  final String slug;
+
+  ClubProfile({required this.name, required this.slug});
+
+  factory ClubProfile.fromJson(Map<String, dynamic> json) {
+    return ClubProfile(name: json['name'] as String, slug: json['slug'] as String);
   }
 }
 
@@ -171,7 +192,5 @@ class UserProfileModel extends ChangeNotifier {
   void initialLoad(UserProfile profile) {
     // note, no notifications here as it all called in part of the initState
     this.profile = profile;
-
   }
-
 }

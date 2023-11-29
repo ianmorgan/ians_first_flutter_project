@@ -159,7 +159,7 @@ Future<int> fetchDuties(AuthModel authModel, DutiesModel model) async {
   List<CalendarEntry> result = List.empty(growable: true);
 
   final response =
-      await http.get(Uri.parse('https://myclub.run/api/clubs/hampton/duties'), headers: {"JWT": authModel.token});
+      await http.get(Uri.parse('https://myclub.run/api/clubs/${authModel.selectedClub}/duties'), headers: {"JWT": authModel.token});
 
   if (response.statusCode == 200) {
     Iterable jsonList = jsonDecode(response.body);

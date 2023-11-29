@@ -57,7 +57,7 @@ Future<(bool, String)> volunteerForDuties(AuthModel authModel, Duty duty, Duties
   print("calendar entry is: ${model.entryForDutyId(duty.id).name}");
   final response = await http.post(
       Uri.parse(
-          'https://myclub.run/api/clubs/hampton/duties/duty/${duty.id}/doVolunteer?username=${authModel.username}&doubleSubmitToken=123456'),
+          'https://myclub.run/api/clubs/${authModel.selectedClub}/duties/duty/${duty.id}/doVolunteer?username=${authModel.username}&doubleSubmitToken=123456'),
       headers: {"JWT": authModel.token});
   print(response.statusCode);
   print(response.body);

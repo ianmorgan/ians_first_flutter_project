@@ -3,10 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:image_downloader/image_downloader.dart';
+import 'dart:io';
 
 import 'models.dart';
 import 'login.dart';
 import 'const.dart';
+import 'image-download.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,6 +19,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  @override
+  initState() {
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthModel>(builder: (context, authModel, child) {
@@ -30,7 +40,7 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         _header(userProfileModel.profile),
                         buildClubs(context, userProfileModel.profile, authModel),
-                        Center(child: Column(children: [buildHomePageButton(authModel), buildLogoutButton(authModel)]))
+                        Center(child: Column(children: [buildHomePageButton(authModel), buildLogoutButton(authModel)])),
                       ],
                     ));
               } else if (snapshot.hasError) {
@@ -46,6 +56,7 @@ class _HomePageState extends State<HomePage> {
       });
     });
   }
+
 
   Widget buildHomePageButton(AuthModel authModel) {
     return ElevatedButton(
@@ -69,30 +80,81 @@ class _HomePageState extends State<HomePage> {
     return Card(
         color: baseColourLight3,
         child:
-            Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
+        Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
           ListTile(
             textColor: baseAnalogous1,
-            leading: const Icon(Icons.calendar_month, color: baseAnalogous1),
+            //leading: _buildImage(club),
             titleTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             title: Text(club.name),
             //subtitle: Text("a subitle"),
             subtitleTextStyle: const TextStyle(fontSize: 16),
           ),
-          Text("Club card for ${club.name} goes here"),
-          _buildClubSelectionState(club, authModel)
+          const SizedBox(height: 5),
+          ClipOval(
+            child: SizedBox.fromSize(
+              size: Size.fromRadius(48), // Image radius
+              child: Image.network('https://myclub.run/clubs/${club.slug}/profileImage', fit: BoxFit.cover),
+            ),
+          ),
+          const SizedBox(height: 5),
+          Container(
+            padding: EdgeInsets.fromLTRB(16,0,8,16),
+            child:
+            Text("Club card for ${club.name} goes here. We should be show the short bio style message for the Club."),
+          ),
+          const SizedBox(height: 5),
+          _buildClubSelectionState(club, authModel),
+          const SizedBox(height: 8),
+
+          // CircleAvatar(
+          //     radius: 48, // Image radius
+          //     backgroundImage: NetworkImage("https://myclub.run/clubs/${club.slug}/profileImage")
+          // )
+          //_buildImage(club)
         ]));
   }
 
   _buildClubSelectionState(ClubProfile club, AuthModel authModel) {
     if (club.slug == authModel.selectedClub) {
-      return Text("This club is active");
+      return const Text("This is the selected Club",
+        style: TextStyle(fontWeight: FontWeight.bold, color: baseAnalogous1),);
     } else {
       return ElevatedButton(
           onPressed: () {
             authModel.selectClub(club.slug);
           },
-          child: Text("Select this Club"));
+          child: const Text("Select this Club"));
     }
+  }
+
+  _buildImage(ClubProfile club) {
+    print("starting an image loader");
+    return FutureBuilder(
+        future: loadImage("https://myclub.run/clubs/${club.slug}/profileImage", "${club.slug}-profile-image"),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            // return Container(
+            //   padding: EdgeInsets.all(8), // Border width
+            //   decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+            //   child: ClipOval(
+            //     child: SizedBox.fromSize(
+            //       size: Size.fromRadius(48), // Image radius
+            //       child: Image.file(File(snapshot.data!), fit: BoxFit.cover),
+            //     ),
+            //   ),
+            // );
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Image.file(File(snapshot.data!), width: 50.0, height: 50.0)
+              ],
+            );
+          }
+          return CircularProgressIndicator(
+            backgroundColor: Colors.purple,
+            strokeWidth: 2,
+          );
+        });
   }
 
   Widget buildClubCard(ClubProfile club) {
@@ -108,7 +170,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildClubs(BuildContext context, UserProfile profile, AuthModel authModel) {
     List<Widget> result = List.empty(growable: true);
-    result.add(Text("There are ${profile.clubs.length} clubs"));
+    //result.add(Text("There are ${profile.clubs.length} clubs"));
 
     for (var club in profile.clubs) {
       result.add(buildClubCard2(club, authModel));
@@ -130,13 +192,18 @@ class _HomePageState extends State<HomePage> {
       ],
     );
   }
+
+
 }
 
 void _showLogoutConfirmation(BuildContext context, AuthModel authModel) {
   // set up the buttons
   Widget cancelButton = TextButton(
       style: TextButton.styleFrom(
-        textStyle: Theme.of(context).textTheme.labelLarge,
+        textStyle: Theme
+            .of(context)
+            .textTheme
+            .labelLarge,
       ),
       child: const Text('Cancel'),
       onPressed: () {
@@ -145,7 +212,10 @@ void _showLogoutConfirmation(BuildContext context, AuthModel authModel) {
 
   Widget logoutButton = TextButton(
       style: TextButton.styleFrom(
-        textStyle: Theme.of(context).textTheme.labelLarge,
+        textStyle: Theme
+            .of(context)
+            .textTheme
+            .labelLarge,
       ),
       child: const Text('Logout'),
       onPressed: () {
@@ -180,17 +250,18 @@ Future<void> _launchHomePage(String username) async {
 }
 
 Future<bool> fetchUserProfile(AuthModel authModel, UserProfileModel userProfileModel) async {
-  print("**** fetchUserProfile for ${authModel.username} ****");
-
   var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
   final response = await delay.then((value) =>
       http.get(Uri.parse('https://myclub.run/api/${authModel.username}/profile'), headers: {"JWT": authModel.token}));
 
   if (response.statusCode == 200) {
-    print("*** found a profile !!! ***");
     var profile = UserProfile.fromJson(jsonDecode(response.body));
     userProfileModel.initialLoad(profile);
     return true;
   }
   return false;
+}
+
+Future<String> downloadImage(String url) {
+  return ImageDownloader.downloadImage(url).then((value) => value != null ? value : "missing");
 }

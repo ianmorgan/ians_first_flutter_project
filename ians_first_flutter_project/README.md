@@ -37,3 +37,8 @@ https://levelup.gitconnected.com/login-page-ui-in-flutter-65210e7a6c90 (minimal)
 // checking login state 
 https://stackoverflow.com/questions/55053803/flutter-how-to-redirect-to-login-if-not-authorized
 https://www.youtube.com/watch?v=afEY74qIiGk
+
+### downloading images 
+
+_note, plugin is not working for reasons unknown _
+https://stackoverflow.com/questions/52299112/flutter-download-an-image-from-url

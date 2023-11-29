@@ -40,6 +40,14 @@ dependencies:
   url_launcher: 6.2.1
   provider: ^6.1.1
 
+  path_provider: ^2.1.1
+  #image_downloader: ^0.31.0
+
+  # fixes kotlin compilation error - see https://github.com/ko2ic/image_downloader/issues/130
+  image_downloader:
+    git:
+      url: https://github.com/VikasTailorbird/image_downloader
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_downloader/image_downloader.dart';
+
 import 'models.dart';
 import 'const.dart';
 import 'login.dart';
@@ -8,6 +10,10 @@ import 'login.dart';
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 void main() {
+
+
+
+
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => DutiesModel()),

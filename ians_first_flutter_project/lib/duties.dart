@@ -128,14 +128,14 @@ class CalendarEntryCard extends StatelessWidget {
     return Consumer<DutiesModel>(builder: (context, model, child) {
       return Center(
         child: Card(
-          color: baseColourLight3,
+          color: baseColourLight2,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               ListTile(
                 textColor: baseAnalogous1,
-                leading: const Icon(Icons.calendar_month),
+                leading: const Icon(Icons.calendar_month, color: baseAnalogous1),
                 titleTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 title: Text(model.entryById(entryId).name),
                 subtitle: Text(model.entryById(entryId).dateTime),

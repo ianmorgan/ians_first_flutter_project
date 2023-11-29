@@ -20,6 +20,15 @@ Future<void> volunteerDialogBuilder(
             style: TextButton.styleFrom(
               textStyle: Theme.of(context).textTheme.labelLarge,
             ),
+            child: const Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              textStyle: Theme.of(context).textTheme.labelLarge,
+            ),
             child: const Text('Confirm'),
             onPressed: () {
               volunteerForDuties(authModel, duty, model).then((value) {
@@ -35,16 +44,7 @@ Future<void> volunteerDialogBuilder(
 
               Navigator.of(context).pop();
             },
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              textStyle: Theme.of(context).textTheme.labelLarge,
-            ),
-            child: const Text('Cancel'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
+          )
         ],
       );
     },

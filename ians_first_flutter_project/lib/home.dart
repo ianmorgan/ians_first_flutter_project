@@ -81,7 +81,7 @@ void _showLogoutConfirmation(BuildContext context, AuthModel authModel) {
     content: Text("${authModel.username}, would you like to logout?"),
     actions: [
       cancelButton,
-      logoutButton,
+      logoutButton
     ],
   );
   showDialog(

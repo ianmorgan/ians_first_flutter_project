@@ -19,16 +19,27 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    const TextStyle headerStyle = TextStyle(color: baseColourLight3, fontSize: 30, fontWeight: FontWeight.w400);
+    const TextStyle headerStyleLight = TextStyle(color: baseColourLight3, fontSize: 30, fontWeight: FontWeight.w100);
+    Widget title = const Row(
+      children: [
+        Text("MyClub ", style: headerStyle),
+        Text("dot ", style: headerStyleLight),
+        Text("Run ", style: headerStyle)
+      ],
+    );
     return ScaffoldMessenger(
         key: scaffoldMessengerKey,
         child: Scaffold(
             appBar: AppBar(
               backgroundColor: baseColour,
-              //title: Text("a title", textAlign: TextAlign.center),
+              title: title,
               bottom: TabBar(
+                labelColor: Colors.white, //<-- selected text color
+                unselectedLabelColor: baseColourLight1, //
                 tabs: [
                   const Tab(icon: Icon(Icons.home), text: 'Home'),
-                  const Tab(icon: Icon(Icons.task), text: 'Tasks'),
+                  const Tab(icon: Icon(Icons.task), text: 'Duties'),
                   const Tab(icon: Icon(Icons.settings), text: 'Settings'),
                 ],
                 controller: _myController,

@@ -179,6 +179,13 @@ class UserProfile {
 
     return UserProfile(name: json['name'] as String, email: json['email'] as String, clubs: deserialisedClubs);
   }
+
+  ClubProfile lookupClub(String clubSlug) {
+    for (var club in clubs) {
+      if (club.slug == clubSlug) return club;
+    }
+    throw Exception("no club with the slug of $clubSlug");
+  }
 }
 
 class ClubProfile {

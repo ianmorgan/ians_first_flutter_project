@@ -161,23 +161,28 @@ Future<int> fetchDuties(AuthModel authModel, DutiesModel model) async {
   print("**** fetchDuties for ${authModel.username} ****");
   List<CalendarEntry> result = List.empty(growable: true);
 
-  final response = await http.get(Uri.parse('https://myclub.run/api/clubs/${authModel.selectedClub}/duties'),
-      headers: {"JWT": authModel.token});
+  if (authModel.hasSelectedClub()) {
+    final response = await http.get(Uri.parse('https://myclub.run/api/clubs/${authModel.selectedClub}/duties'),
+        headers: {"JWT": authModel.token});
 
-  if (response.statusCode == 200) {
-    Iterable jsonList = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      Iterable jsonList = jsonDecode(response.body);
 
-    for (var element in jsonList) {
-      result.add(CalendarEntry.fromJson(element));
+      for (var element in jsonList) {
+        result.add(CalendarEntry.fromJson(element));
+      }
+      model.initialLoad(result);
+
+      // don' really need anything here, as all we need is in the model which is AppState
+      return result.length;
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load the duties ${response.body} (${response.statusCode})');
     }
-    model.initialLoad(result);
-
-    // don' really need anything here, as all we need is in the model which is AppState
-    return result.length;
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load the duties ${response.body} (${response.statusCode})');
+  }
+  else {
+    return -1; // Timer(const Duration(seconds: simulatedDelay), () {
   }
 }
 
@@ -191,7 +196,7 @@ List<Widget> _createEventsList(AuthModel authModel, DutiesModel model, UserProfi
   } else {
     //result.add(Text("loaded ${model.entries.length} entries"));
 
-    result.add(buildClubPanel(userProfile.clubs.first));
+    result.add(buildClubPanel(userProfile.lookupClub(authModel.selectedClub)));
 
     for (var entry in model.entries) {
       result.add(CalendarEntryCard(

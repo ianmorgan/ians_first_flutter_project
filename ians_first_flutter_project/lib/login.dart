@@ -20,8 +20,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthModel>(
-      builder: (context, authModel, child) {
+    return Consumer<AppStateModel>(
+      builder: (context, appStateModel, child) {
         return ScaffoldMessenger(
           key: _scaffoldMessengerKey,
           child: Scaffold(
@@ -30,8 +30,8 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _header(authModel),
-                  _inputField(authModel, context, _scaffoldMessengerKey),
+                  _header(appStateModel),
+                  _inputField(appStateModel, context, _scaffoldMessengerKey),
                   _forgotPassword(context),
                   _signup(context),
                 ],
@@ -43,11 +43,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _header(AuthModel authModel) {
+  _header(AppStateModel appStateModel) {
     return Column(
       children: [
         Text(
-          authModel.isLoggedIn ? "Welcome Back" : "Please Login",
+          appStateModel.isLoggedIn ? "Welcome Back" : "Please Login",
           style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
         const Text("Enter your credentials to Login"),
@@ -55,9 +55,9 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  _inputField(AuthModel authModel, context, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
-    final userNameController = TextEditingController(text: authModel.displayableUserName());
-    final passwordController = TextEditingController(text: authModel.attemptedPassword);
+  _inputField(AppStateModel appStateModel, context, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
+    final userNameController = TextEditingController(text: appStateModel.displayableUserName());
+    final passwordController = TextEditingController(text: appStateModel.attemptedPassword);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -87,16 +87,16 @@ class _LoginPageState extends State<LoginPage> {
         ElevatedButton(
           onPressed: () {
             // hardcode at the moment
-            authModel.startLogin(userNameController.text, passwordController.text);
+            appStateModel.startLogin(userNameController.text, passwordController.text);
             doRequestToken(userNameController.text)
-                .then((value) => {doProcessResult(context, value, authModel, scaffoldKey)})
-                .onError((error, stackTrace) => {doProcessError(context, error, authModel, scaffoldKey)});
+                .then((value) => {doProcessResult(context, value, appStateModel, scaffoldKey)})
+                .onError((error, stackTrace) => {doProcessError(context, error, appStateModel, scaffoldKey)});
           },
           style: ElevatedButton.styleFrom(
               shape: const StadiumBorder(),
               padding: const EdgeInsets.symmetric(vertical: 16),
               backgroundColor: baseAnalogous1),
-          child: authModel.isCallingApi
+          child: appStateModel.isCallingApi
               ? const CircularProgressIndicator()
               : const Text(
                   "Login",
@@ -139,21 +139,21 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-void doProcessResult(BuildContext context, http.Response response, AuthModel authModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
+void doProcessResult(BuildContext context, http.Response response, AppStateModel appStateModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
   if (response.statusCode == 200) {
     // note, the response contains the token
-    doSuccessLogin(context, response.body, authModel, scaffoldKey);
+    doSuccessLogin(context, response.body, appStateModel, scaffoldKey);
   } else if (response.statusCode == 401) {
-    authModel.cancelLogin();
+    appStateModel.cancelLogin();
     const ErrorSnackBar("Not authorised, please check the username and password").showWithKey(scaffoldKey);
   } else {
-    authModel.cancelLogin();
+    appStateModel.cancelLogin();
     ErrorSnackBar("Sorry, something went wrong. ('${response.body}'). Please try again after a short delay.").showWithKey(scaffoldKey);
   }
 }
 
-void doProcessError(BuildContext context, error, AuthModel authModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
-  authModel.cancelLogin();
+void doProcessError(BuildContext context, error, AppStateModel appStateModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
+  appStateModel.cancelLogin();
   ErrorSnackBar("Sorry, something went wrong, ('$error'). Please try again after a short delay").showWithKey(scaffoldKey);
 }
 
@@ -163,9 +163,9 @@ Future<http.Response> doRequestToken(String username) {
       body: '{"username":"$username"}'));
 }
 
-Future<dynamic> doSuccessLogin(BuildContext context, String token, AuthModel authModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
-  authModel.completeLogin(token);
-  SuccessSnackBar("Logged in as '${authModel.username}'").showWithKey(scaffoldKey);
+Future<dynamic> doSuccessLogin(BuildContext context, String token, AppStateModel appStateModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
+  appStateModel.completeLogin(token);
+  SuccessSnackBar("Logged in as '${appStateModel.username}'").showWithKey(scaffoldKey);
 
   return Navigator.of(context, rootNavigator: false).pushReplacement(MaterialPageRoute(
     builder: (context) => const AppPageRoute(),

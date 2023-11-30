@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:image_downloader/image_downloader.dart';
+//import 'package:image_downloader/image_downloader.dart';
 
 import 'models.dart';
 import 'const.dart';
@@ -25,7 +25,7 @@ Future<void> main() async {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => DutiesModel()),
-      ChangeNotifierProvider(create: (context) => AuthModel()),
+      ChangeNotifierProvider(create: (context) => AppStateModel()),
       ChangeNotifierProvider(create: (context) => UserProfileModel())
     ],
     child: const MyApp(),
@@ -121,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
 
 Widget buildHomePage(BuildContext context) {
-  return Consumer<AuthModel>(builder: (context, authModel, child) {
+  return Consumer<AppStateModel>(builder: (context, appStateModel, child) {
     return Center(
         child: Column(children: [
       Text("Login page was here !!!!"),

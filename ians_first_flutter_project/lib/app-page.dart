@@ -71,7 +71,7 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
 }
 
 Widget buildHomePage(BuildContext context) {
-  return Consumer<AuthModel>(builder: (context, authModel, child) {
+  return Consumer<AppStateModel>(builder: (context, appStateModel, child) {
     return Center(
         child: Column(children: [
       Text("Login page was here !!!!"),

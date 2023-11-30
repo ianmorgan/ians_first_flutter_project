@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 
 enum DutyStatus { Unassigned, Assigned, Completed, Cancelled }
 
-class AuthModel extends ChangeNotifier {
+class AppStateModel extends ChangeNotifier {
   bool isLoggedIn = false;
   bool isReturningUser = false;
   String username = "";
@@ -198,6 +198,23 @@ class ClubProfile {
   factory ClubProfile.fromJson(Map<String, dynamic> json) {
     return ClubProfile(
         name: json['name'] as String, slug: json['slug'] as String, description: json['description'] as String);
+  }
+}
+
+class UpcomingDuty {
+  final String name;
+  final String date;
+  final String distanceInTime;
+  final String eventId;
+
+  UpcomingDuty({required this.eventId, required this.name, required this.date, required this.distanceInTime});
+
+  factory UpcomingDuty.fromJson(Map<String, dynamic> json) {
+    return UpcomingDuty(
+        eventId: json['eventId'] as String,
+        name: json['name'] as String,
+        date: json['date'] as String,
+        distanceInTime: json['distanceInTime'] as String);
   }
 }
 

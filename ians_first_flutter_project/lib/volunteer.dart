@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:ians_first_flutter_project/widgets.dart';
 
 Future<void> volunteerDialogBuilder(
-    BuildContext context, AuthModel authModel, String entryId, String dutyId, DutiesModel model) {
+    BuildContext context, AppStateModel appStateModel, String entryId, String dutyId, DutiesModel model) {
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {
@@ -12,7 +12,7 @@ Future<void> volunteerDialogBuilder(
       var duty = model.dutyById(dutyId);
       return AlertDialog(
         title: Text('Volunteer for ${duty.name}'),
-        content: Text('Hi ${authModel.username}, you are volunteering for "${duty.name}" duty at ${entry.name} '
+        content: Text('Hi ${appStateModel.username}, you are volunteering for "${duty.name}" duty at ${entry.name} '
             'on ${entry.dateTime}\n\n'
             'Please accept by pressing the "Confirm" button below.\n'),
         actions: <Widget>[
@@ -31,7 +31,7 @@ Future<void> volunteerDialogBuilder(
             ),
             child: const Text('Confirm'),
             onPressed: () {
-              volunteerForDuties(authModel, duty, model).then((value) {
+              volunteerForDuties(appStateModel, duty, model).then((value) {
                 //print("aa");
                 if (value.$1) {
                   duty.status = DutyStatus.Assigned;
@@ -51,18 +51,18 @@ Future<void> volunteerDialogBuilder(
   );
 }
 
-Future<(bool, String)> volunteerForDuties(AuthModel authModel, Duty duty, DutiesModel model) async {
-  print("user name is: ${authModel.username}");
+Future<(bool, String)> volunteerForDuties(AppStateModel appStateModel, Duty duty, DutiesModel model) async {
+  print("user name is: ${appStateModel.username}");
   print("duty is: ${duty.name}");
   print("calendar entry is: ${model.entryForDutyId(duty.id).name}");
   final response = await http.post(
       Uri.parse(
-          'https://myclub.run/api/clubs/${authModel.selectedClub}/duties/duty/${duty.id}/doVolunteer?username=${authModel.username}&doubleSubmitToken=123456'),
-      headers: {"JWT": authModel.token});
+          'https://myclub.run/api/clubs/${appStateModel.selectedClub}/duties/duty/${duty.id}/doVolunteer?username=${appStateModel.username}&doubleSubmitToken=123456'),
+      headers: {"JWT": appStateModel.token});
   print(response.statusCode);
   print(response.body);
   if (response.statusCode == 200) {
-    model.assignDuty(duty.id, authModel.username);
+    model.assignDuty(duty.id, appStateModel.username);
   }
   return (response.statusCode == 200, response.body);
 }

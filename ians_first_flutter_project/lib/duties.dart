@@ -8,11 +8,11 @@ import 'models.dart';
 import 'volunteer.dart';
 
 Widget buildDutiesPage(BuildContext buildContext) {
-  return Consumer<AuthModel>(builder: (context, authModel, child) {
+  return Consumer<AppStateModel>(builder: (context, appStateModel, child) {
     return Consumer<DutiesModel>(builder: (context, dutiesModel, child) {
       return Consumer<UserProfileModel>(builder: (context, userProfileModel, child) {
         return FutureBuilder<int>(
-            future: fetchDuties(authModel, dutiesModel),
+            future: fetchDuties(appStateModel, dutiesModel),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return RefreshIndicator(
@@ -22,11 +22,11 @@ Widget buildDutiesPage(BuildContext buildContext) {
                       // Remember to use asynchronous functions when performing async operations
 
                       // Example of a delay to simulate an asynchronous operation
-                      await fetchDuties(authModel, dutiesModel);
+                      await fetchDuties(appStateModel, dutiesModel);
                       dutiesModel.notifyAll();
                     },
                     child: ListView(children: [
-                      Column(children: _createEventsList(authModel, dutiesModel, userProfileModel.profile))
+                      Column(children: _createEventsList(appStateModel, dutiesModel, userProfileModel.profile))
                     ]));
               } else if (snapshot.hasError) {
                 return Text('${snapshot.error}');
@@ -44,10 +44,10 @@ Widget buildDutiesPage(BuildContext buildContext) {
 }
 
 class CalendarEntryCard extends StatelessWidget {
-  const CalendarEntryCard({super.key, required this.authModel, required this.entryId});
+  const CalendarEntryCard({super.key, required this.appStateModel, required this.entryId});
 
   final String entryId;
-  final AuthModel authModel;
+  final AppStateModel appStateModel;
 
   List<Widget> _createButton(BuildContext context, DutiesModel model, String entryId, String dutyId) {
     List<Widget> widgets = List.empty(growable: true);
@@ -57,7 +57,7 @@ class CalendarEntryCard extends StatelessWidget {
         widgets.add(TextButton(
             child: const Text('Volunteer'),
             onPressed: () => {
-                  volunteerDialogBuilder(context, authModel, entryId, dutyId, model),
+                  volunteerDialogBuilder(context, appStateModel, entryId, dutyId, model),
                 }));
       case DutyStatus.Assigned:
         widgets.add(TextButton(child: const Text('Swap'), onPressed: () {}));
@@ -102,7 +102,7 @@ class CalendarEntryCard extends StatelessWidget {
     return widgets;
   }
 
-  List<Widget> _createDutiesList(BuildContext context, DutiesModel model, AuthModel authModel) {
+  List<Widget> _createDutiesList(BuildContext context, DutiesModel model, AppStateModel appStateModel) {
     List<Widget> widgets = List.filled(model.entryById(entryId).duties.length, const Text(""), growable: false);
     int i = 0;
     for (var duty in model.entryById(entryId).duties) {
@@ -114,7 +114,7 @@ class CalendarEntryCard extends StatelessWidget {
         TableRow(children: [
           TableCell(
               verticalAlignment: TableCellVerticalAlignment.middle,
-              child: Wrap(children: _createDutyInfo(context, duty, authModel.username))),
+              child: Wrap(children: _createDutyInfo(context, duty, appStateModel.username))),
           const Text(""),
           TableCell(
               verticalAlignment: TableCellVerticalAlignment.top,
@@ -148,7 +148,7 @@ class CalendarEntryCard extends StatelessWidget {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: _createDutiesList(context, dutiesModel, authModel))),
+                      children: _createDutiesList(context, dutiesModel, appStateModel))),
             ],
           ),
         ),
@@ -157,13 +157,13 @@ class CalendarEntryCard extends StatelessWidget {
   }
 }
 
-Future<int> fetchDuties(AuthModel authModel, DutiesModel model) async {
-  print("**** fetchDuties for ${authModel.username} ****");
+Future<int> fetchDuties(AppStateModel appStateModel, DutiesModel model) async {
+  print("**** fetchDuties for ${appStateModel.username} ****");
   List<CalendarEntry> result = List.empty(growable: true);
 
-  if (authModel.hasSelectedClub()) {
-    final response = await http.get(Uri.parse('https://myclub.run/api/clubs/${authModel.selectedClub}/duties'),
-        headers: {"JWT": authModel.token});
+  if (appStateModel.hasSelectedClub()) {
+    final response = await http.get(Uri.parse('https://myclub.run/api/clubs/${appStateModel.selectedClub}/duties'),
+        headers: {"JWT": appStateModel.token});
 
     if (response.statusCode == 200) {
       Iterable jsonList = jsonDecode(response.body);
@@ -188,20 +188,20 @@ Future<int> fetchDuties(AuthModel authModel, DutiesModel model) async {
 
 // curl  https://myclub.run/api/clubs/hampton/duties | jq
 
-List<Widget> _createEventsList(AuthModel authModel, DutiesModel model, UserProfile userProfile) {
+List<Widget> _createEventsList(AppStateModel appStateModel, DutiesModel model, UserProfile userProfile) {
   List<Widget> result = List.empty(growable: true);
 
-  if (!authModel.hasSelectedClub()) {
+  if (!appStateModel.hasSelectedClub()) {
     result.add(buildAlertMessage("There is no club selected. Switch to the Home Page and choose a club"));
   } else {
     //result.add(Text("loaded ${model.entries.length} entries"));
 
-    result.add(buildClubPanel(userProfile.lookupClub(authModel.selectedClub)));
+    result.add(buildClubPanel(userProfile.lookupClub(appStateModel.selectedClub)));
 
     for (var entry in model.entries) {
       result.add(CalendarEntryCard(
         key: UniqueKey(),
-        authModel: authModel,
+        appStateModel: appStateModel,
         entryId: entry.id,
       ));
     }

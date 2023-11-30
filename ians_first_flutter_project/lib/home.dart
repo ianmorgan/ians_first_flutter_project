@@ -27,20 +27,20 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthModel>(builder: (context, authModel, child) {
+    return Consumer<AppStateModel>(builder: (context, appStateModel, child) {
       return Consumer<UserProfileModel>(builder: (context, userProfileModel, child) {
         return FutureBuilder<bool>(
-            future: fetchUserProfile(authModel, userProfileModel),
+            future: fetchUserProfile(appStateModel, userProfileModel),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return Container(
                     margin: const EdgeInsets.all(16),
                     child: ListView(
                       children: [
-                        _header(userProfileModel.profile, authModel),
-                        _showSelectClubMessage(authModel),
-                        _buildClubs(context, userProfileModel.profile, authModel),
-                        Center(child: Column(children: [buildHomePageButton(authModel), buildLogoutButton(authModel)])),
+                        _header(userProfileModel.profile, appStateModel),
+                        _showSelectClubMessage(appStateModel),
+                        _buildClubs(context, userProfileModel.profile, appStateModel),
+                        Center(child: Column(children: [buildHomePageButton(appStateModel), buildLogoutButton(appStateModel)])),
                       ],
                     ));
               } else if (snapshot.hasError) {
@@ -57,25 +57,25 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Widget buildHomePageButton(AuthModel authModel) {
+  Widget buildHomePageButton(AppStateModel appStateModel) {
     return ElevatedButton(
       onPressed: () {
-        _launchHomePage(authModel.username);
+        _launchHomePage(appStateModel.username);
       }, //_launchHomePage,
       child: const Text('View on website'),
     );
   }
 
-  Widget buildLogoutButton(AuthModel authModel) {
+  Widget buildLogoutButton(AppStateModel appStateModel) {
     return ElevatedButton(
       onPressed: () {
-        _showLogoutConfirmation(context, authModel);
+        _showLogoutConfirmation(context, appStateModel);
       }, //_launchHomePage,
       child: const Text('Logout'),
     );
   }
 
-  Widget buildClubCard2(ClubProfile club, AuthModel authModel) {
+  Widget buildClubCard2(ClubProfile club, AppStateModel appStateModel) {
     return Card(
         color: baseColourLight3,
         child:
@@ -101,7 +101,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 5),
-          _buildClubSelectionState(club, authModel),
+          _buildClubSelectionState(club, appStateModel),
           const SizedBox(height: 8),
 
           // CircleAvatar(
@@ -112,8 +112,8 @@ class _HomePageState extends State<HomePage> {
         ]));
   }
 
-  _buildClubSelectionState(ClubProfile club, AuthModel authModel) {
-    if (club.slug == authModel.selectedClub) {
+  _buildClubSelectionState(ClubProfile club, AppStateModel appStateModel) {
+    if (club.slug == appStateModel.selectedClub) {
       return const Text(
         "This is the selected Club",
         style: TextStyle(fontWeight: FontWeight.bold, color: baseAnalogous1),
@@ -121,13 +121,13 @@ class _HomePageState extends State<HomePage> {
     } else {
       return ElevatedButton(
           onPressed: () {
-            authModel.selectClub(club.slug);
+            appStateModel.selectClub(club.slug);
           },
           child: const Text("Select this Club"));
     }
   }
 
-  _showSelectClubMessage(AuthModel appState) {
+  _showSelectClubMessage(AppStateModel appState) {
     if (appState.selectedClub == "") {
       return Row(children: [Text("You need to select a club")]);
     } else {
@@ -174,7 +174,7 @@ class _HomePageState extends State<HomePage> {
   // Column(
   // crossAxisAlignment: CrossAxisAlignment.stretch,
 
-  _buildClubs(BuildContext context, UserProfile profile, AuthModel authModel) {
+  _buildClubs(BuildContext context, UserProfile profile, AppStateModel appStateModel) {
     List<Widget> result = List.empty(growable: true);
     //result.add(Text("There are ${profile.clubs.length} clubs"));
 
@@ -190,7 +190,7 @@ class _HomePageState extends State<HomePage> {
       ])
     ]));
     for (var club in profile.clubs) {
-      result.add(buildClubCard2(club, authModel));
+      result.add(buildClubCard2(club, appStateModel));
     }
 
     return Column(
@@ -198,12 +198,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _header(UserProfile userProfile, AuthModel authModel) {
+  _header(UserProfile userProfile, AppStateModel appStateModel) {
     return Column(
       children: [
         Row(children: [
           const SizedBox(width: 10),
-          buildUserImage(authModel.username, 24),
+          buildUserImage(appStateModel.username, 24),
           const SizedBox(width: 10),
           Expanded(
               child: Text(
@@ -218,7 +218,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-void _showLogoutConfirmation(BuildContext context, AuthModel authModel) {
+void _showLogoutConfirmation(BuildContext context, AppStateModel appStateModel) {
   // set up the buttons
   Widget cancelButton = TextButton(
       style: TextButton.styleFrom(
@@ -236,12 +236,12 @@ void _showLogoutConfirmation(BuildContext context, AuthModel authModel) {
       child: const Text('Logout'),
       onPressed: () {
         Navigator.of(context).pop();
-        _doLogout(context, authModel);
+        _doLogout(context, appStateModel);
       });
 
   AlertDialog alert = AlertDialog(
     title: const Text("Logout"),
-    content: Text("${authModel.username}, would you like to logout?"),
+    content: Text("${appStateModel.username}, would you like to logout?"),
     actions: [cancelButton, logoutButton],
   );
   showDialog(
@@ -252,8 +252,8 @@ void _showLogoutConfirmation(BuildContext context, AuthModel authModel) {
   );
 }
 
-void _doLogout(BuildContext context, AuthModel authModel) {
-  authModel.logout();
+void _doLogout(BuildContext context, AppStateModel appStateModel) {
+  appStateModel.logout();
   Navigator.of(context, rootNavigator: false).pushReplacement(MaterialPageRoute(
     builder: (context) => const LoginPage(),
   ));
@@ -265,10 +265,10 @@ Future<void> _launchHomePage(String username) async {
   }
 }
 
-Future<bool> fetchUserProfile(AuthModel authModel, UserProfileModel userProfileModel) async {
+Future<bool> fetchUserProfile(AppStateModel appStateModel, UserProfileModel userProfileModel) async {
   var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
   final response = await delay.then((value) =>
-      http.get(Uri.parse('https://myclub.run/api/${authModel.username}/profile'), headers: {"JWT": authModel.token}));
+      http.get(Uri.parse('https://myclub.run/api/${appStateModel.username}/profile'), headers: {"JWT": appStateModel.token}));
 
   if (response.statusCode == 200) {
     var profile = UserProfile.fromJson(jsonDecode(response.body));

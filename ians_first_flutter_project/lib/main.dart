@@ -7,12 +7,20 @@ import 'models.dart';
 import 'const.dart';
 import 'login.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Firebase.initializeApp();
+//   runApp(MyApp());
+// }
 
-void main() {
-
-
-
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(MultiProvider(
     providers: [

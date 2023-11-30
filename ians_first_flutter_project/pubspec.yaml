@@ -47,6 +47,7 @@ dependencies:
   image_downloader:
     git:
       url: https://github.com/VikasTailorbird/image_downloader
+  firebase_core: ^2.24.0
 
 dev_dependencies:
   flutter_test:

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "900849390375",
+    "project_id": "myclubdotrun",
+    "storage_bucket": "myclubdotrun.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:900849390375:android:23068469624a297db60f02",
+        "android_client_info": {
+          "package_name": "run.myclub.ians_first_flutter_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwPnxPjqv14HS-h1-u7q8bXjh1V2WnFeA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

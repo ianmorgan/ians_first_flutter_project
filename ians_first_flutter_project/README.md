@@ -28,7 +28,6 @@ https://docs.flutter.dev/cookbook/networking/send-data
 ### icons
 https://www.freecodecamp.org/news/how-to-add-custom-icons-to-your-flutter-application/
 
-
 ### login pages
 https://medium.com/@flutterdynasty/login-signup-page-design-with-code-c593e7c82a4c (looks nice :)
 https://github.com/abuanwar072/Welcome-Login-Signup-Page-Flutter   (fully featured )
@@ -38,7 +37,13 @@ https://levelup.gitconnected.com/login-page-ui-in-flutter-65210e7a6c90 (minimal)
 https://stackoverflow.com/questions/55053803/flutter-how-to-redirect-to-login-if-not-authorized
 https://www.youtube.com/watch?v=afEY74qIiGk
 
-### downloading images 
-
+### downloading images
 _note, plugin is not working for reasons unknown _
 https://stackoverflow.com/questions/52299112/flutter-download-an-image-from-url
+https://stackoverflow.com/questions/51513429/how-to-do-rounded-corners-image-in-flutter
+
+## Firebase
+
+adding crashlytics 
+
+https://www.youtube.com/watch?v=p4pmAGn1Y00

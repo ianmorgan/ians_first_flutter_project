@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ians_first_flutter_project/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -36,8 +37,9 @@ class _HomePageState extends State<HomePage> {
                     margin: const EdgeInsets.all(16),
                     child: ListView(
                       children: [
-                        _header(userProfileModel.profile),
-                        buildClubs(context, userProfileModel.profile, authModel),
+                        _header(userProfileModel.profile, authModel),
+                        _showSelectClubMessage(authModel),
+                        _buildClubs(context, userProfileModel.profile, authModel),
                         Center(child: Column(children: [buildHomePageButton(authModel), buildLogoutButton(authModel)])),
                       ],
                     ));
@@ -90,16 +92,11 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               const SizedBox(width: 10),
-              ClipOval(
-                child: SizedBox.fromSize(
-                  size: const Size.fromRadius(48), // Image radius
-                  child: Image.network('https://myclub.run/clubs/${club.slug}/profileImage', fit: BoxFit.cover),
-                ),
-              ),
+              buildClubImage(club.slug, 48),
               Expanded(
                   child: Container(
                 padding: const EdgeInsets.fromLTRB(16, 0, 8, 16),
-                child: Text(club.description + "dghf ghjfdsg fhjfdg jdfhjdg dfhjg fdshj gfdj"),
+                child: Text(club.description),
               )),
             ],
           ),
@@ -127,6 +124,14 @@ class _HomePageState extends State<HomePage> {
             authModel.selectClub(club.slug);
           },
           child: const Text("Select this Club"));
+    }
+  }
+
+  _showSelectClubMessage(AuthModel appState) {
+    if (appState.selectedClub == "") {
+      return Row(children: [Text("You need to select a club")]);
+    } else {
+      return const SizedBox();
     }
   }
 
@@ -169,10 +174,21 @@ class _HomePageState extends State<HomePage> {
   // Column(
   // crossAxisAlignment: CrossAxisAlignment.stretch,
 
-  Widget buildClubs(BuildContext context, UserProfile profile, AuthModel authModel) {
+  _buildClubs(BuildContext context, UserProfile profile, AuthModel authModel) {
     List<Widget> result = List.empty(growable: true);
     //result.add(Text("There are ${profile.clubs.length} clubs"));
 
+    result.add(const SizedBox(height: 10));
+    result.add(const Row(children: [
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(
+          "Your Clubs",
+          style: heading2,
+        ),
+        SizedBox(height: 5),
+        Text("You are a member of the following clubs.")
+      ])
+    ]));
     for (var club in profile.clubs) {
       result.add(buildClubCard2(club, authModel));
     }
@@ -182,25 +198,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _header(UserProfile profile) {
+  _header(UserProfile userProfile, AuthModel authModel) {
     return Column(
       children: [
         Row(children: [
           const SizedBox(width: 10),
-          ClipOval(
-            child: SizedBox.fromSize(
-              size: const Size.fromRadius(24), // Image radius
-              child: Image.network('https://myclub.run/users/profileImage/alice', fit: BoxFit.cover),
-            ),
-          ),
+          buildUserImage(authModel.username, 24),
           const SizedBox(width: 10),
-          Expanded(child: Text(
-            "Hello ${profile.name}",
-            style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: baseAnalogous1),
+          Expanded(
+              child: Text(
+            "Hello ${userProfile.name}",
+            style: heading1,
           ))
         ]),
         const SizedBox(height: 5),
-        const Text("This is your home page."),
+        //const Text("This is your home page."),
       ],
     );
   }

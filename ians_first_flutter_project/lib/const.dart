@@ -17,4 +17,13 @@ const darkText = Color.fromRGBO(59, 67, 87, 1);
 const simulatedDelay = 0;
 
 
+const heading1 = TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: baseAnalogous1);
+const heading2 = TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: baseAnalogous1);
+const heading3 = TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: baseAnalogous1);
+const heading3Light = TextStyle(fontSize: 20, fontWeight: FontWeight.w200, color: baseAnalogous1);
+
+
+const blueText = TextStyle(color: baseAnalogous1);
+
+
 //const darkText = Color.fromRGBO( // #3b4351

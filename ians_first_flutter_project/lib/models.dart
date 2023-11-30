@@ -14,7 +14,7 @@ class AuthModel extends ChangeNotifier {
   bool isCallingApi = false;
   String attemptedUsername = "";
   String attemptedPassword = "";
-  String selectedClub = "hampton";
+  String selectedClub = "";
 
   void completeLogin(String token) {
     isLoggedIn = true;
@@ -51,6 +51,7 @@ class AuthModel extends ChangeNotifier {
     if (isLoggedIn) {
       //isCallingApi = false;
       isLoggedIn = false;
+      selectedClub = "";
       //attemptedPassword = "";
       notifyListeners();
     }
@@ -59,6 +60,10 @@ class AuthModel extends ChangeNotifier {
   String displayableUserName() {
     if (isLoggedIn) return username;
     return attemptedUsername;
+  }
+
+  bool hasSelectedClub() {
+    return selectedClub != "";
   }
 }
 

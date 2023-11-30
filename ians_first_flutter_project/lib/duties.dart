@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ians_first_flutter_project/widgets.dart';
 import 'package:provider/provider.dart';
 import 'const.dart';
 import 'models.dart';
@@ -9,36 +10,38 @@ import 'volunteer.dart';
 Widget buildDutiesPage(BuildContext buildContext) {
   return Consumer<AuthModel>(builder: (context, authModel, child) {
     return Consumer<DutiesModel>(builder: (context, dutiesModel, child) {
-      return FutureBuilder<int>(
-          future: fetchDuties(authModel, dutiesModel),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return RefreshIndicator(
-                  onRefresh: () async {
-                    // Handle the refresh action here (e.g., fetch new data)
-                    // You can call an API, update data, or perform any necessary tasks
-                    // Remember to use asynchronous functions when performing async operations
+      return Consumer<UserProfileModel>(builder: (context, userProfileModel, child) {
+        return FutureBuilder<int>(
+            future: fetchDuties(authModel, dutiesModel),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return RefreshIndicator(
+                    onRefresh: () async {
+                      // Handle the refresh action here (e.g., fetch new data)
+                      // You can call an API, update data, or perform any necessary tasks
+                      // Remember to use asynchronous functions when performing async operations
 
-                    // Example of a delay to simulate an asynchronous operation
-                    await fetchDuties(authModel, dutiesModel);
-                    dutiesModel.notifyAll();
-                  },
-                  child: ListView(children: [Column(children: _createEventsList(authModel, dutiesModel))]));
-            } else if (snapshot.hasError) {
-              return Text('${snapshot.error}');
-            }
-            else {
-              return const Text("Fetching data....", style: TextStyle(color: baseColour));
-              // By default, show a loading spinner.
-              // return const Center(
-              //   child: CircularProgressIndicator(),
-              // );
-            }
-          });
+                      // Example of a delay to simulate an asynchronous operation
+                      await fetchDuties(authModel, dutiesModel);
+                      dutiesModel.notifyAll();
+                    },
+                    child: ListView(children: [
+                      Column(children: _createEventsList(authModel, dutiesModel, userProfileModel.profile))
+                    ]));
+              } else if (snapshot.hasError) {
+                return Text('${snapshot.error}');
+              } else {
+                return const Text("Fetching data....", style: TextStyle(color: baseColour));
+                // By default, show a loading spinner.
+                // return const Center(
+                //   child: CircularProgressIndicator(),
+                // );
+              }
+            });
+      });
     });
   });
 }
-
 
 class CalendarEntryCard extends StatelessWidget {
   const CalendarEntryCard({super.key, required this.authModel, required this.entryId});
@@ -125,7 +128,7 @@ class CalendarEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<DutiesModel>(builder: (context, model, child) {
+    return Consumer<DutiesModel>(builder: (context, dutiesModel, child) {
       return Center(
         child: Card(
           color: baseColourLight2,
@@ -137,15 +140,15 @@ class CalendarEntryCard extends StatelessWidget {
                 textColor: baseAnalogous1,
                 leading: const Icon(Icons.calendar_month, color: baseAnalogous1),
                 titleTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                title: Text(model.entryById(entryId).name),
-                subtitle: Text(model.entryById(entryId).dateTime),
+                title: Text(dutiesModel.entryById(entryId).name),
+                subtitle: Text(dutiesModel.entryById(entryId).dateTime),
                 subtitleTextStyle: const TextStyle(fontSize: 16),
               ),
               Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: _createDutiesList(context, model, authModel))),
+                      children: _createDutiesList(context, dutiesModel, authModel))),
             ],
           ),
         ),
@@ -158,8 +161,8 @@ Future<int> fetchDuties(AuthModel authModel, DutiesModel model) async {
   print("**** fetchDuties for ${authModel.username} ****");
   List<CalendarEntry> result = List.empty(growable: true);
 
-  final response =
-      await http.get(Uri.parse('https://myclub.run/api/clubs/${authModel.selectedClub}/duties'), headers: {"JWT": authModel.token});
+  final response = await http.get(Uri.parse('https://myclub.run/api/clubs/${authModel.selectedClub}/duties'),
+      headers: {"JWT": authModel.token});
 
   if (response.statusCode == 200) {
     Iterable jsonList = jsonDecode(response.body);
@@ -180,16 +183,23 @@ Future<int> fetchDuties(AuthModel authModel, DutiesModel model) async {
 
 // curl  https://myclub.run/api/clubs/hampton/duties | jq
 
-List<Widget> _createEventsList(AuthModel authModel, DutiesModel model) {
+List<Widget> _createEventsList(AuthModel authModel, DutiesModel model, UserProfile userProfile) {
   List<Widget> result = List.empty(growable: true);
-  result.add(Text("loaded ${model.entries.length} entries"));
 
-  for (var entry in model.entries) {
-    result.add(CalendarEntryCard(
-      key: UniqueKey(),
-      authModel: authModel,
-      entryId: entry.id,
-    ));
+  if (!authModel.hasSelectedClub()) {
+    result.add(buildAlertMessage("There is no club selected. Switch to the Home Page and choose a club"));
+  } else {
+    //result.add(Text("loaded ${model.entries.length} entries"));
+
+    result.add(buildClubPanel(userProfile.clubs.first));
+
+    for (var entry in model.entries) {
+      result.add(CalendarEntryCard(
+        key: UniqueKey(),
+        authModel: authModel,
+        entryId: entry.id,
+      ));
+    }
   }
   return result;
 }

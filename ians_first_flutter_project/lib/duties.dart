@@ -192,7 +192,7 @@ List<Widget> _createEventsList(AppStateModel appStateModel, DutiesModel model, U
   List<Widget> result = List.empty(growable: true);
 
   if (!appStateModel.hasSelectedClub()) {
-    result.add(buildAlertMessage("There is no club selected. Switch to the Home Page and choose a club"));
+    result.add(buildAlertMessage("There is no club selected. Switch to the Home tab and choose a club"));
   } else {
     //result.add(Text("loaded ${model.entries.length} entries"));
 

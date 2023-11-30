@@ -14,7 +14,7 @@ const whiteText = Color.fromRGBO(255, 255, 255, 1);
 const darkText = Color.fromRGBO(59, 67, 87, 1);
 
 // make all calls slow for testing
-const simulatedDelay = 1;
+const simulatedDelay = 0;
 
 const heading1 = TextStyle(fontSize: 40, fontWeight: FontWeight.w500, color: baseAnalogous1);
 const heading2 = TextStyle(fontSize: 28, fontWeight: FontWeight.w500, color: baseAnalogous1);

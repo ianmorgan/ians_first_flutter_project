@@ -36,7 +36,6 @@ class _HomePageState extends State<HomePage> {
                     child: ListView(
                       children: [
                         _header(userProfileModel.profile, appStateModel),
-                        _showSelectClubMessage(appStateModel),
                         _buildUpcomingDuties(userProfileModel, appStateModel),
                         _buildClubs(context, userProfileModel, appStateModel),
                         Center(
@@ -129,9 +128,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _showSelectClubMessage(AppStateModel appState) {
+  Widget _showSelectClubMessage(AppStateModel appState) {
     if (appState.selectedClub == "") {
-      return Row(children: [Text("You need to select a club")]);
+      return const Row(children: [Text("You need to select a club", style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500),)]);
     } else {
       return const SizedBox();
     }
@@ -150,7 +149,7 @@ class _HomePageState extends State<HomePage> {
       result.add(const SizedBox(height: 5));
     } else {
       result.add(Text(
-          "You have ${userProfile.upcomingDuties.length} duties. Thanks for helping. You can find and volunteer for more using the Duties tab."));
+          "You have ${userProfile.upcomingDuties.length} upcoming duties. Thanks for helping. You can find and volunteer for more using the Duties tab."));
 
       result.add(const SizedBox(height: 10));
 
@@ -207,14 +206,15 @@ class _HomePageState extends State<HomePage> {
     //result.add(Text("There are ${profile.clubs.length} clubs"));
 
     result.add(const SizedBox(height: 10));
-    result.add(const Row(children: [
+    result.add(Row(children: [
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(
+        const Text(
           "Your Clubs",
           style: heading2,
         ),
-        SizedBox(height: 5),
-        Text("You are a member of the following clubs.")
+        const SizedBox(height: 5),
+        _showSelectClubMessage(appStateModel),
+        const Text("You are a member of the following clubs.")
       ])
     ]));
     for (var club in profile.profile.clubs) {

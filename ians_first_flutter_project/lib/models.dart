@@ -205,13 +205,13 @@ class UpcomingDuty {
   final String name;
   final String date;
   final String distanceInTime;
-  final String eventId;
+  final String eventUrl;
 
-  UpcomingDuty({required this.eventId, required this.name, required this.date, required this.distanceInTime});
+  UpcomingDuty({required this.eventUrl, required this.name, required this.date, required this.distanceInTime});
 
   factory UpcomingDuty.fromJson(Map<String, dynamic> json) {
     return UpcomingDuty(
-        eventId: json['eventId'] as String,
+        eventUrl: json['url'] as String,
         name: json['name'] as String,
         date: json['date'] as String,
         distanceInTime: json['distanceInTime'] as String);

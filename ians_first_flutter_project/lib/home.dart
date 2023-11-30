@@ -154,16 +154,44 @@ class _HomePageState extends State<HomePage> {
 
       result.add(const SizedBox(height: 10));
 
+      List<TableRow> tableRows = List.empty(growable: true);
       for (var duty in userProfile.upcomingDuties) {
         var richText = RichText(
             text: TextSpan(children: [
-          TextSpan(text: "${duty.name} ", style: heading),
-          TextSpan(text: "${duty.distanceInTime} (${duty.date})", style: headingLight),
-          //T//extSpan(text: userProfile)
-        ]));
-        result.add(richText);
-        result.add(const SizedBox(height: 5));
+              TextSpan(text: "${duty.name} ", style: heading),
+              TextSpan(text: "${duty.distanceInTime}\n(${duty.date})", style: headingLight),
+            ]));
+        var button = TextButton(child: const Text('View'), onPressed: () {
+          _launchPage(duty.eventUrl);
+        });
+        var row = TableRow(children: [
+          TableCell(
+              verticalAlignment: TableCellVerticalAlignment.middle, child: richText),
+          const Text(""),
+          TableCell(
+              verticalAlignment: TableCellVerticalAlignment.top, child: Wrap(children: [button]))
+        ]);
+        tableRows.add(row);
       }
+
+      var table = Table(columnWidths: const <int, TableColumnWidth>{
+        0: IntrinsicColumnWidth(),
+        1: FlexColumnWidth(),
+        2: FixedColumnWidth(80),
+      }, children: tableRows);
+
+      result.add(table);
+
+      // for (var duty in userProfile.upcomingDuties) {
+      //   var richText = RichText(
+      //       text: TextSpan(children: [
+      //     TextSpan(text: "${duty.name} ", style: heading),
+      //     TextSpan(text: "${duty.distanceInTime} (${duty.date})", style: headingLight),
+      //     //T//extSpan(text: userProfile)
+      //   ]));
+      //   result.add(richText);
+      //   result.add(const SizedBox(height: 5));
+      // }
 
       //result.add(card);
       result.add(const SizedBox(height: 5));
@@ -264,6 +292,12 @@ void _doLogout(BuildContext context, AppStateModel appStateModel) {
 
 Future<void> _launchHomePage(String username) async {
   if (!await launchUrl(Uri.parse('https://myclub.run/$username'), mode: LaunchMode.externalApplication)) {
+    throw Exception('Could not launch home page');
+  }
+}
+
+Future<void> _launchPage(String url) async {
+  if (!await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)) {
     throw Exception('Could not launch home page');
   }
 }

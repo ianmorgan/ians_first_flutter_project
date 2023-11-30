@@ -19,12 +19,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   initState() {
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +55,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-
   Widget buildHomePageButton(AuthModel authModel) {
     return ElevatedButton(
       onPressed: () {
@@ -80,27 +77,31 @@ class _HomePageState extends State<HomePage> {
     return Card(
         color: baseColourLight3,
         child:
-        Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
+            Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
           ListTile(
             textColor: baseAnalogous1,
-            //leading: _buildImage(club),
             titleTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             title: Text(club.name),
-            //subtitle: Text("a subitle"),
+            //subtitle: Text("a subtitle"),
             subtitleTextStyle: const TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 5),
-          ClipOval(
-            child: SizedBox.fromSize(
-              size: Size.fromRadius(48), // Image radius
-              child: Image.network('https://myclub.run/clubs/${club.slug}/profileImage', fit: BoxFit.cover),
-            ),
-          ),
-          const SizedBox(height: 5),
-          Container(
-            padding: EdgeInsets.fromLTRB(16,0,8,16),
-            child:
-            Text("Club card for ${club.name} goes here. We should be show the short bio style message for the Club."),
+          Row /*or Column*/ (
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const SizedBox(width: 10),
+              ClipOval(
+                child: SizedBox.fromSize(
+                  size: const Size.fromRadius(48), // Image radius
+                  child: Image.network('https://myclub.run/clubs/${club.slug}/profileImage', fit: BoxFit.cover),
+                ),
+              ),
+              Expanded(
+                  child: Container(
+                padding: const EdgeInsets.fromLTRB(16, 0, 8, 16),
+                child: Text(club.description + "dghf ghjfdsg fhjfdg jdfhjdg dfhjg fdshj gfdj"),
+              )),
+            ],
           ),
           const SizedBox(height: 5),
           _buildClubSelectionState(club, authModel),
@@ -116,8 +117,10 @@ class _HomePageState extends State<HomePage> {
 
   _buildClubSelectionState(ClubProfile club, AuthModel authModel) {
     if (club.slug == authModel.selectedClub) {
-      return const Text("This is the selected Club",
-        style: TextStyle(fontWeight: FontWeight.bold, color: baseAnalogous1),);
+      return const Text(
+        "This is the selected Club",
+        style: TextStyle(fontWeight: FontWeight.bold, color: baseAnalogous1),
+      );
     } else {
       return ElevatedButton(
           onPressed: () {
@@ -145,9 +148,7 @@ class _HomePageState extends State<HomePage> {
             // );
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Image.file(File(snapshot.data!), width: 50.0, height: 50.0)
-              ],
+              children: <Widget>[Image.file(File(snapshot.data!), width: 50.0, height: 50.0)],
             );
           }
           return CircularProgressIndicator(
@@ -157,13 +158,13 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  Widget buildClubCard(ClubProfile club) {
-    return Card(
-        color: baseColourLight3,
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[Text("Club card for ${club.name} goes here")]));
-  }
+  // Widget buildClubCard(ClubProfile club) {
+  //   return Card(
+  //       color: baseColourLight3,
+  //       child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.stretch,
+  //           children: <Widget>[Text("Club card for ${club.name} goes here")]));
+  // }
 
   // Column(
   // crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -184,26 +185,32 @@ class _HomePageState extends State<HomePage> {
   _header(UserProfile profile) {
     return Column(
       children: [
-        Text(
-          "Hello ${profile.name}",
-          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: baseAnalogous1),
-        ),
+        Row(children: [
+          const SizedBox(width: 10),
+          ClipOval(
+            child: SizedBox.fromSize(
+              size: const Size.fromRadius(24), // Image radius
+              child: Image.network('https://myclub.run/users/profileImage/alice', fit: BoxFit.cover),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(child: Text(
+            "Hello ${profile.name}",
+            style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: baseAnalogous1),
+          ))
+        ]),
+        const SizedBox(height: 5),
         const Text("This is your home page."),
       ],
     );
   }
-
-
 }
 
 void _showLogoutConfirmation(BuildContext context, AuthModel authModel) {
   // set up the buttons
   Widget cancelButton = TextButton(
       style: TextButton.styleFrom(
-        textStyle: Theme
-            .of(context)
-            .textTheme
-            .labelLarge,
+        textStyle: Theme.of(context).textTheme.labelLarge,
       ),
       child: const Text('Cancel'),
       onPressed: () {
@@ -212,10 +219,7 @@ void _showLogoutConfirmation(BuildContext context, AuthModel authModel) {
 
   Widget logoutButton = TextButton(
       style: TextButton.styleFrom(
-        textStyle: Theme
-            .of(context)
-            .textTheme
-            .labelLarge,
+        textStyle: Theme.of(context).textTheme.labelLarge,
       ),
       child: const Text('Logout'),
       onPressed: () {

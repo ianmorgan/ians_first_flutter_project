@@ -170,6 +170,7 @@ class UserProfile {
     for (var item in json['clubs'] as Iterable) {
       deserialisedClubs.add(ClubProfile.fromJson(item));
     }
+    deserialisedClubs.sort((a, b) => a.name.compareTo(b.name));
 
     return UserProfile(name: json['name'] as String, email: json['email'] as String, clubs: deserialisedClubs);
   }
@@ -178,11 +179,13 @@ class UserProfile {
 class ClubProfile {
   final String name;
   final String slug;
+  final String description;
 
-  ClubProfile({required this.name, required this.slug});
+  ClubProfile({required this.name, required this.slug, required this.description});
 
   factory ClubProfile.fromJson(Map<String, dynamic> json) {
-    return ClubProfile(name: json['name'] as String, slug: json['slug'] as String);
+    return ClubProfile(
+        name: json['name'] as String, slug: json['slug'] as String, description: json['description'] as String);
   }
 }
 

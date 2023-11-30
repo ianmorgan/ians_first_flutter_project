@@ -47,3 +47,8 @@ https://stackoverflow.com/questions/51513429/how-to-do-rounded-corners-image-in-
 adding crashlytics 
 
 https://www.youtube.com/watch?v=p4pmAGn1Y00
+
+
+## Flutter layouts 
+
+https://medium.com/flutter-community/flutter-layout-cheat-sheet-5363348d037e

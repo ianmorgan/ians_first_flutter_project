@@ -5,12 +5,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:image_downloader/image_downloader.dart';
-import 'dart:io';
 
 import 'models.dart';
 import 'login.dart';
 import 'const.dart';
-import 'image-download.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -39,8 +37,11 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         _header(userProfileModel.profile, appStateModel),
                         _showSelectClubMessage(appStateModel),
-                        _buildClubs(context, userProfileModel.profile, appStateModel),
-                        Center(child: Column(children: [buildHomePageButton(appStateModel), buildLogoutButton(appStateModel)])),
+                        _buildUpcomingDuties(userProfileModel, appStateModel),
+                        _buildClubs(context, userProfileModel, appStateModel),
+                        Center(
+                            child: Column(
+                                children: [buildHomePageButton(appStateModel), buildLogoutButton(appStateModel)])),
                       ],
                     ));
               } else if (snapshot.hasError) {
@@ -75,14 +76,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildClubCard2(ClubProfile club, AppStateModel appStateModel) {
+  Widget buildClubCard2(ClubProfile club, UserProfileModel userProfileModel, AppStateModel appStateModel) {
     return Card(
         color: baseColourLight3,
         child:
             Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: <Widget>[
           ListTile(
             textColor: baseAnalogous1,
-            titleTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            titleTextStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
             title: Text(club.name),
             //subtitle: Text("a subtitle"),
             subtitleTextStyle: const TextStyle(fontSize: 16),
@@ -101,7 +102,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           const SizedBox(height: 5),
-          _buildClubSelectionState(club, appStateModel),
+          _buildClubSelectionState(club, userProfileModel, appStateModel),
           const SizedBox(height: 8),
 
           // CircleAvatar(
@@ -112,16 +113,17 @@ class _HomePageState extends State<HomePage> {
         ]));
   }
 
-  _buildClubSelectionState(ClubProfile club, AppStateModel appStateModel) {
+  _buildClubSelectionState(ClubProfile club, UserProfileModel userProfileModel, AppStateModel appStateModel) {
     if (club.slug == appStateModel.selectedClub) {
       return const Text(
         "This is the selected Club",
-        style: TextStyle(fontWeight: FontWeight.bold, color: baseAnalogous1),
+        style: TextStyle(fontWeight: FontWeight.w500, color: baseAnalogous1),
       );
     } else {
       return ElevatedButton(
           onPressed: () {
             appStateModel.selectClub(club.slug);
+            //fetchUserProfile(appStateModel, userProfileModel);
           },
           child: const Text("Select this Club"));
     }
@@ -135,46 +137,44 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _buildImage(ClubProfile club) {
-    print("starting an image loader");
-    return FutureBuilder(
-        future: loadImage("https://myclub.run/clubs/${club.slug}/profileImage", "${club.slug}-profile-image"),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            // return Container(
-            //   padding: EdgeInsets.all(8), // Border width
-            //   decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-            //   child: ClipOval(
-            //     child: SizedBox.fromSize(
-            //       size: Size.fromRadius(48), // Image radius
-            //       child: Image.file(File(snapshot.data!), fit: BoxFit.cover),
-            //     ),
-            //   ),
-            // );
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[Image.file(File(snapshot.data!), width: 50.0, height: 50.0)],
-            );
-          }
-          return CircularProgressIndicator(
-            backgroundColor: Colors.purple,
-            strokeWidth: 2,
-          );
-        });
+  _buildUpcomingDuties(UserProfileModel userProfile, AppStateModel appState) {
+    const heading = TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: baseAnalogous1);
+    const headingLight = TextStyle(fontSize: 16, fontWeight: FontWeight.w200, color: baseAnalogous1);
+
+    List<Widget> result = List.empty(growable: true);
+    result.add(const SizedBox(height: 10));
+    result.add(const Text("Upcoming Duties", style: heading2));
+    result.add(const SizedBox(height: 10));
+    if (userProfile.upcomingDuties.isEmpty) {
+      result.add(const Text("You don't have any duties. You can find and volunteer using the Duties tab."));
+      result.add(const SizedBox(height: 5));
+    } else {
+      result.add(Text(
+          "You have ${userProfile.upcomingDuties.length} duties. Thanks for helping. You can find and volunteer for more using the Duties tab."));
+
+      result.add(const SizedBox(height: 10));
+
+      for (var duty in userProfile.upcomingDuties) {
+        var richText = RichText(
+            text: TextSpan(children: [
+          TextSpan(text: "${duty.name} ", style: heading),
+          TextSpan(text: "${duty.distanceInTime} (${duty.date})", style: headingLight),
+          //T//extSpan(text: userProfile)
+        ]));
+        result.add(richText);
+        result.add(const SizedBox(height: 5));
+      }
+
+      //result.add(card);
+      result.add(const SizedBox(height: 5));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: result,
+    );
   }
 
-  // Widget buildClubCard(ClubProfile club) {
-  //   return Card(
-  //       color: baseColourLight3,
-  //       child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.stretch,
-  //           children: <Widget>[Text("Club card for ${club.name} goes here")]));
-  // }
-
-  // Column(
-  // crossAxisAlignment: CrossAxisAlignment.stretch,
-
-  _buildClubs(BuildContext context, UserProfile profile, AppStateModel appStateModel) {
+  _buildClubs(BuildContext context, UserProfileModel profile, AppStateModel appStateModel) {
     List<Widget> result = List.empty(growable: true);
     //result.add(Text("There are ${profile.clubs.length} clubs"));
 
@@ -189,8 +189,8 @@ class _HomePageState extends State<HomePage> {
         Text("You are a member of the following clubs.")
       ])
     ]));
-    for (var club in profile.clubs) {
-      result.add(buildClubCard2(club, appStateModel));
+    for (var club in profile.profile.clubs) {
+      result.add(buildClubCard2(club, profile, appStateModel));
     }
 
     return Column(
@@ -206,9 +206,12 @@ class _HomePageState extends State<HomePage> {
           buildUserImage(appStateModel.username, 24),
           const SizedBox(width: 10),
           Expanded(
-              child: Text(
-            "Hello ${userProfile.name}",
-            style: heading1,
+              child: RichText(
+            text: TextSpan(children: [
+              const TextSpan(text: "hello ", style: heading1Light),
+              TextSpan(text: userProfile.name, style: heading1),
+              //T//extSpan(text: userProfile)
+            ]),
           ))
         ]),
         const SizedBox(height: 5),
@@ -267,13 +270,26 @@ Future<void> _launchHomePage(String username) async {
 
 Future<bool> fetchUserProfile(AppStateModel appStateModel, UserProfileModel userProfileModel) async {
   var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
-  final response = await delay.then((value) =>
-      http.get(Uri.parse('https://myclub.run/api/${appStateModel.username}/profile'), headers: {"JWT": appStateModel.token}));
+  // todo - run these requests in parallel
+  final profileResponse = await delay.then((value) => http.get(
+      Uri.parse('https://myclub.run/api/${appStateModel.username}/profile'),
+      headers: {"JWT": appStateModel.token}));
 
-  if (response.statusCode == 200) {
-    var profile = UserProfile.fromJson(jsonDecode(response.body));
-    userProfileModel.initialLoad(profile);
-    return true;
+  if (profileResponse.statusCode == 200) {
+    final upcomingResponse = await delay.then((value) => http.get(
+        Uri.parse('https://myclub.run/api/${appStateModel.username}/duties/upcoming'),
+        headers: {"JWT": appStateModel.token}));
+
+    if (upcomingResponse.statusCode == 200) {
+      List<UpcomingDuty> deserialisedDuties = List.empty(growable: true);
+      for (var item in jsonDecode(upcomingResponse.body) as Iterable) {
+        deserialisedDuties.add(UpcomingDuty.fromJson(item));
+      }
+
+      var profile = UserProfile.fromJson(jsonDecode(profileResponse.body));
+      userProfileModel.initialLoad(profile, deserialisedDuties);
+      return true;
+    }
   }
   return false;
 }

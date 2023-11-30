@@ -220,9 +220,11 @@ class UpcomingDuty {
 
 class UserProfileModel extends ChangeNotifier {
   late UserProfile profile;
+  late List<UpcomingDuty> upcomingDuties;
 
-  void initialLoad(UserProfile profile) {
+  void initialLoad(UserProfile profile, List<UpcomingDuty> upcomingDuties) {
     // note, no notifications here as it all called in part of the initState
     this.profile = profile;
+    this.upcomingDuties = upcomingDuties;
   }
 }

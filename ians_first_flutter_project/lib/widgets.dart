@@ -83,5 +83,5 @@ Widget buildClubPanel(ClubProfile club) {
 }
 
 Widget buildAlertMessage(String message) {
-  return Text(message, style: const TextStyle(fontSize: 20, color: Colors.red, fontWeight: FontWeight.bold));
+  return Text(message, style: const TextStyle(fontSize: 20, color: Colors.red, fontWeight: FontWeight.w500));
 }

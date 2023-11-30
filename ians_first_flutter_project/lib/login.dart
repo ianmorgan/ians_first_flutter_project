@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         Text(
           appStateModel.isLoggedIn ? "Welcome Back" : "Please Login",
-          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w500),
         ),
         const Text("Enter your credentials to Login"),
       ],

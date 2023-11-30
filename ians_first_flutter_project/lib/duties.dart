@@ -139,7 +139,7 @@ class CalendarEntryCard extends StatelessWidget {
               ListTile(
                 textColor: baseAnalogous1,
                 leading: const Icon(Icons.calendar_month, color: baseAnalogous1),
-                titleTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                titleTextStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
                 title: Text(dutiesModel.entryById(entryId).name),
                 subtitle: Text(dutiesModel.entryById(entryId).dateTime),
                 subtitleTextStyle: const TextStyle(fontSize: 16),

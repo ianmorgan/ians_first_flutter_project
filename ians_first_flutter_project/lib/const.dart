@@ -14,16 +14,12 @@ const whiteText = Color.fromRGBO(255, 255, 255, 1);
 const darkText = Color.fromRGBO(59, 67, 87, 1);
 
 // make all calls slow for testing
-const simulatedDelay = 0;
+const simulatedDelay = 1;
 
-
-const heading1 = TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: baseAnalogous1);
-const heading2 = TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: baseAnalogous1);
-const heading3 = TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: baseAnalogous1);
+const heading1 = TextStyle(fontSize: 40, fontWeight: FontWeight.w500, color: baseAnalogous1);
+const heading2 = TextStyle(fontSize: 28, fontWeight: FontWeight.w500, color: baseAnalogous1);
+const heading3 = TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: baseAnalogous1);
+const heading1Light = TextStyle(fontSize: 40, fontWeight: FontWeight.w200, color: baseAnalogous1);
 const heading3Light = TextStyle(fontSize: 20, fontWeight: FontWeight.w200, color: baseAnalogous1);
 
-
 const blueText = TextStyle(color: baseAnalogous1);
-
-
-//const darkText = Color.fromRGBO( // #3b4351

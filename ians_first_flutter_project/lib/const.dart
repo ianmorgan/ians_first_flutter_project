@@ -23,3 +23,9 @@ const heading1Light = TextStyle(fontSize: 40, fontWeight: FontWeight.w200, color
 const heading3Light = TextStyle(fontSize: 20, fontWeight: FontWeight.w200, color: baseAnalogous1);
 
 const blueText = TextStyle(color: baseAnalogous1);
+
+// persisted app state
+const storedUserNameKey = 'current.username';
+const storedTokenKey = 'current.token';
+const storedSelectedClubKey = 'current.selectedClub';
+

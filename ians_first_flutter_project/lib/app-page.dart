@@ -8,14 +8,20 @@ import 'home.dart';
 import 'duties.dart';
 
 class AppPageRoute extends StatefulWidget {
-  const AppPageRoute({super.key});
+  const AppPageRoute({super.key, required this.persistedState});
+  final PersistedState persistedState;
 
   @override
-  State<AppPageRoute> createState() => _AppPageRouteState();
+  State<AppPageRoute> createState() => _AppPageRouteState(persistedState: persistedState);
 }
 
 class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMixin {
+  _AppPageRouteState({required this.persistedState});
+
   late TabController _myController;
+  final PersistedState persistedState;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +52,7 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
               ),
             ),
             body: TabBarView(controller: _myController, children: [
-              HomePage(),
+              HomePage(persistedState: persistedState),
               buildDutiesPage(context),
               Text("tab 3"),
             ])));

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'main.dart';
 import 'models.dart';
@@ -88,9 +89,10 @@ class _LoginPageState extends State<LoginPage> {
           onPressed: () {
             // hardcode at the moment
             appStateModel.startLogin(userNameController.text, passwordController.text);
-            doRequestToken(userNameController.text)
-                .then((value) => {doProcessResult(context, value, appStateModel, scaffoldKey)})
-                .onError((error, stackTrace) => {doProcessError(context, error, appStateModel, scaffoldKey)});
+            _doRequestToken(userNameController.text)
+                .then((value) => {_doProcessResult(context, value, appStateModel, scaffoldKey)})
+                .then((value) => _saveLogin(appStateModel))
+                .onError((error, stackTrace) => {_doProcessError(context, error, appStateModel, scaffoldKey)});
           },
           style: ElevatedButton.styleFrom(
               shape: const StadiumBorder(),
@@ -137,37 +139,57 @@ class _LoginPageState extends State<LoginPage> {
       ],
     );
   }
-}
 
-void doProcessResult(BuildContext context, http.Response response, AppStateModel appStateModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
-  if (response.statusCode == 200) {
-    // note, the response contains the token
-    doSuccessLogin(context, response.body, appStateModel, scaffoldKey);
-  } else if (response.statusCode == 401) {
-    appStateModel.cancelLogin();
-    const ErrorSnackBar("Not authorised, please check the username and password").showWithKey(scaffoldKey);
-  } else {
-    appStateModel.cancelLogin();
-    ErrorSnackBar("Sorry, something went wrong. ('${response.body}'). Please try again after a short delay.").showWithKey(scaffoldKey);
+  @override
+  void initState() {
+    super.initState();
   }
-}
 
-void doProcessError(BuildContext context, error, AppStateModel appStateModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
-  appStateModel.cancelLogin();
-  ErrorSnackBar("Sorry, something went wrong, ('$error'). Please try again after a short delay").showWithKey(scaffoldKey);
-}
 
-Future<http.Response> doRequestToken(String username) {
-  var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
-  return delay.then((value) => http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken?authMode=Production'),
-      body: '{"username":"$username"}'));
-}
+  Future<dynamic> _doSuccessLogin(
+      BuildContext context, String token, AppStateModel appStateModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
+    appStateModel.completeLogin(token);
+    SuccessSnackBar("Logged in as '${appStateModel.username}'").showWithKey(scaffoldKey);
 
-Future<dynamic> doSuccessLogin(BuildContext context, String token, AppStateModel appStateModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
-  appStateModel.completeLogin(token);
-  SuccessSnackBar("Logged in as '${appStateModel.username}'").showWithKey(scaffoldKey);
+    return Navigator.of(context, rootNavigator: false).pushReplacement(MaterialPageRoute(
+      builder: (context) => AppPageRoute(persistedState: appStateModel.buildPersistedState()),
+    ));
+  }
 
-  return Navigator.of(context, rootNavigator: false).pushReplacement(MaterialPageRoute(
-    builder: (context) => const AppPageRoute(),
-  ));
+  Future<void> _saveLogin(AppStateModel appStateModel) async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString(storedUserNameKey, appStateModel.username);
+      prefs.setString(storedTokenKey, appStateModel.token);
+      prefs.setString(storedSelectedClubKey, appStateModel.selectedClub);
+    });
+  }
+
+  void _doProcessResult(BuildContext context, http.Response response, AppStateModel appStateModel,
+      GlobalKey<ScaffoldMessengerState> scaffoldKey) {
+    if (response.statusCode == 200) {
+      // note, the response contains the token
+      _doSuccessLogin(context, response.body, appStateModel, scaffoldKey);
+    } else if (response.statusCode == 401) {
+      appStateModel.cancelLogin();
+      const ErrorSnackBar("Not authorised, please check the username and password").showWithKey(scaffoldKey);
+    } else {
+      appStateModel.cancelLogin();
+      ErrorSnackBar("Sorry, something went wrong. ('${response.body}'). Please try again after a short delay.")
+          .showWithKey(scaffoldKey);
+    }
+  }
+
+  void _doProcessError(
+      BuildContext context, error, AppStateModel appStateModel, GlobalKey<ScaffoldMessengerState> scaffoldKey) {
+    appStateModel.cancelLogin();
+    ErrorSnackBar("Sorry, something went wrong, ('$error'). Please try again after a short delay")
+        .showWithKey(scaffoldKey);
+  }
+
+  Future<http.Response> _doRequestToken(String username) {
+    var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
+    return delay.then((value) => http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken?authMode=Production'),
+        body: '{"username":"$username"}'));
+  }
 }

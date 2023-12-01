@@ -15,6 +15,7 @@ class AppStateModel extends ChangeNotifier {
   String attemptedUsername = "";
   String attemptedPassword = "";
   String selectedClub = "";
+  bool persistedStateRestored = false;
 
   void completeLogin(String token) {
     isLoggedIn = true;
@@ -64,6 +65,21 @@ class AppStateModel extends ChangeNotifier {
 
   bool hasSelectedClub() {
     return selectedClub != "";
+  }
+
+  void restorePersistedState(PersistedState persistedState) {
+    // its important we only do this once, otherwise
+    // we overwrite running app with the original state
+    if (!persistedStateRestored) {
+      username = persistedState.username;
+      token = persistedState.token;
+      selectedClub = persistedState.selectedClub;
+      persistedStateRestored = true;
+    }
+  }
+
+  PersistedState buildPersistedState() {
+    return PersistedState(username: username, token: token, selectedClub: selectedClub);
   }
 }
 
@@ -226,5 +242,17 @@ class UserProfileModel extends ChangeNotifier {
     // note, no notifications here as it all called in part of the initState
     this.profile = profile;
     this.upcomingDuties = upcomingDuties;
+  }
+}
+
+class PersistedState {
+  final String username;
+  final String token;
+  final String selectedClub;
+
+  PersistedState({required this.username, required this.token, required this.selectedClub});
+
+  bool isLoggedIn() {
+    return username != "";
   }
 }

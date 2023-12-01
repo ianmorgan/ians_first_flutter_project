@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-//import 'package:image_downloader/image_downloader.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models.dart';
 import 'const.dart';
 import 'login.dart';
+import 'app-page.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 // void main() async {
@@ -28,7 +28,7 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (context) => AppStateModel()),
       ChangeNotifierProvider(create: (context) => UserProfileModel())
     ],
-    child: const MyApp(),
+    child: MyApp(),
   ));
 }
 
@@ -38,9 +38,12 @@ Future<void> _launchHomePage() async {
   }
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _MyAppState();
+}
 
+class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -57,16 +60,49 @@ class MyApp extends StatelessWidget {
           // }
         },
         child: MaterialApp(
-          title: 'MyClub dot Run',
-          theme: ThemeData(
-            // This is the theme of your application.
-            //
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            useMaterial3: true,
-          ),
-          home: const LoginPage()
-          //home: const MyHomePage(title: 'Please Login'),
-        ));
+            title: 'MyClub dot Run',
+            theme: ThemeData(
+              // This is the theme of your application.
+              //
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+              useMaterial3: true,
+            ),
+            home: FutureBuilder<PersistedState>(
+                future: _loadCurrentUser(),
+                builder: (buildContext, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data!.isLoggedIn()) {
+                      // Return your login here
+                      //return LoginPage();
+                      //return Container(color: Colors.purple);
+                      return AppPageRoute(persistedState: snapshot.data!);
+                    } else {
+                      // Return your home here
+                      //return AppPageRoute();
+                      return LoginPage();
+                    }
+                  } else {
+                    // Return loading screen while reading preferences
+                    return Center(child: CircularProgressIndicator());
+                  }
+                })
+            //home: const MyHomePage(title: 'Please Login'),
+            ));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  /// Load the initial counter value from persistent storage on start,
+  /// or fallback to 0 if it doesn't exist.
+  Future<PersistedState> _loadCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    var currentUser = prefs.getString(storedUserNameKey) ?? "";
+    var currentToken = prefs.getString(storedTokenKey) ?? "";
+    var currentClub = prefs.getString(storedSelectedClubKey) ?? "";
+    return PersistedState(username: currentUser, token: currentToken, selectedClub: currentClub);
   }
 }
 
@@ -117,14 +153,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 }
 
-
-
-
 Widget buildHomePage(BuildContext context) {
   return Consumer<AppStateModel>(builder: (context, appStateModel, child) {
-    return Center(
+    return const Center(
         child: Column(children: [
-      Text("Login page was here !!!!"),
+      const Text("Login page was here !!!!"),
       ElevatedButton(
         onPressed: _launchHomePage,
         child: Text('Show the homepage'),

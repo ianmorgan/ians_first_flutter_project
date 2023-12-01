@@ -5,19 +5,26 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:image_downloader/image_downloader.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 import 'models.dart';
 import 'login.dart';
 import 'const.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, required this.persistedState});
+  final PersistedState persistedState;
+
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState(persistedState: persistedState);
 }
 
 class _HomePageState extends State<HomePage> {
+  _HomePageState({required this.persistedState});
+  final PersistedState persistedState;
+
   @override
   initState() {
     super.initState();
@@ -28,14 +35,14 @@ class _HomePageState extends State<HomePage> {
     return Consumer<AppStateModel>(builder: (context, appStateModel, child) {
       return Consumer<UserProfileModel>(builder: (context, userProfileModel, child) {
         return FutureBuilder<bool>(
-            future: fetchUserProfile(appStateModel, userProfileModel),
+            future: fetchUserProfile(persistedState, userProfileModel, appStateModel),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return Container(
                     margin: const EdgeInsets.all(16),
                     child: ListView(
                       children: [
-                        _header(userProfileModel.profile, appStateModel),
+                        _header(userProfileModel, appStateModel),
                         _buildUpcomingDuties(userProfileModel, appStateModel),
                         _buildClubs(context, userProfileModel, appStateModel),
                         Center(
@@ -122,7 +129,7 @@ class _HomePageState extends State<HomePage> {
       return ElevatedButton(
           onPressed: () {
             appStateModel.selectClub(club.slug);
-            //fetchUserProfile(appStateModel, userProfileModel);
+            _saveSelectedClub(club.slug);
           },
           child: const Text("Select this Club"));
     }
@@ -180,19 +187,6 @@ class _HomePageState extends State<HomePage> {
       }, children: tableRows);
 
       result.add(table);
-
-      // for (var duty in userProfile.upcomingDuties) {
-      //   var richText = RichText(
-      //       text: TextSpan(children: [
-      //     TextSpan(text: "${duty.name} ", style: heading),
-      //     TextSpan(text: "${duty.distanceInTime} (${duty.date})", style: headingLight),
-      //     //T//extSpan(text: userProfile)
-      //   ]));
-      //   result.add(richText);
-      //   result.add(const SizedBox(height: 5));
-      // }
-
-      //result.add(card);
       result.add(const SizedBox(height: 5));
     }
     return Column(
@@ -226,7 +220,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _header(UserProfile userProfile, AppStateModel appStateModel) {
+  _header(UserProfileModel userProfileModel, AppStateModel appStateModel) {
     return Column(
       children: [
         Row(children: [
@@ -237,7 +231,7 @@ class _HomePageState extends State<HomePage> {
               child: RichText(
             text: TextSpan(children: [
               const TextSpan(text: "hello ", style: heading1Light),
-              TextSpan(text: userProfile.name, style: heading1),
+              TextSpan(text: userProfileModel.profile.name, style: heading1),
               //T//extSpan(text: userProfile)
             ]),
           ))
@@ -247,48 +241,68 @@ class _HomePageState extends State<HomePage> {
       ],
     );
   }
+
+  void _showLogoutConfirmation(BuildContext context, AppStateModel appStateModel) {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+        style: TextButton.styleFrom(
+          textStyle: Theme.of(context).textTheme.labelLarge,
+        ),
+        child: const Text('Cancel'),
+        onPressed: () {
+          Navigator.of(context).pop();
+        });
+
+    Widget logoutButton = TextButton(
+        style: TextButton.styleFrom(
+          textStyle: Theme.of(context).textTheme.labelLarge,
+        ),
+        child: const Text('Logout'),
+        onPressed: () {
+          Navigator.of(context).pop();
+          _doLogout(context, appStateModel);
+        });
+
+    AlertDialog alert = AlertDialog(
+      title: const Text("Logout"),
+      content: Text("${appStateModel.username}, would you like to logout?"),
+      actions: [cancelButton, logoutButton],
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void _doLogout(BuildContext context, AppStateModel appStateModel) {
+    appStateModel.logout();
+    _clearSavedState();
+    Navigator.of(context, rootNavigator: false).pushReplacement(MaterialPageRoute(
+      builder: (context) => const LoginPage(),
+    ));
+  }
+
+  Future<void> _saveSelectedClub(String selectedClub) async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString(storedSelectedClubKey, selectedClub);
+    });
+  }
+
+
+  Future<void> _clearSavedState() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.remove(storedUserNameKey);
+      prefs.remove(storedTokenKey);
+      prefs.remove(storedSelectedClubKey);
+    });
+  }
+
 }
 
-void _showLogoutConfirmation(BuildContext context, AppStateModel appStateModel) {
-  // set up the buttons
-  Widget cancelButton = TextButton(
-      style: TextButton.styleFrom(
-        textStyle: Theme.of(context).textTheme.labelLarge,
-      ),
-      child: const Text('Cancel'),
-      onPressed: () {
-        Navigator.of(context).pop();
-      });
-
-  Widget logoutButton = TextButton(
-      style: TextButton.styleFrom(
-        textStyle: Theme.of(context).textTheme.labelLarge,
-      ),
-      child: const Text('Logout'),
-      onPressed: () {
-        Navigator.of(context).pop();
-        _doLogout(context, appStateModel);
-      });
-
-  AlertDialog alert = AlertDialog(
-    title: const Text("Logout"),
-    content: Text("${appStateModel.username}, would you like to logout?"),
-    actions: [cancelButton, logoutButton],
-  );
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return alert;
-    },
-  );
-}
-
-void _doLogout(BuildContext context, AppStateModel appStateModel) {
-  appStateModel.logout();
-  Navigator.of(context, rootNavigator: false).pushReplacement(MaterialPageRoute(
-    builder: (context) => const LoginPage(),
-  ));
-}
 
 Future<void> _launchHomePage(String username) async {
   if (!await launchUrl(Uri.parse('https://myclub.run/$username'), mode: LaunchMode.externalApplication)) {
@@ -302,17 +316,21 @@ Future<void> _launchPage(String url) async {
   }
 }
 
-Future<bool> fetchUserProfile(AppStateModel appStateModel, UserProfileModel userProfileModel) async {
+Future<bool> fetchUserProfile(PersistedState persistedState, UserProfileModel userProfileModel, AppStateModel appStateModel) async {
+  // todo - ideally set this earlier in the calling form, but that was causing errors as
+  // the AppStateModel was unavailable, so we fix it up here instead
+  appStateModel.restorePersistedState(persistedState);
+
   var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
   // todo - run these requests in parallel
   final profileResponse = await delay.then((value) => http.get(
-      Uri.parse('https://myclub.run/api/${appStateModel.username}/profile'),
-      headers: {"JWT": appStateModel.token}));
+      Uri.parse('https://myclub.run/api/${persistedState.username}/profile'),
+      headers: {"JWT": persistedState.token}));
 
   if (profileResponse.statusCode == 200) {
     final upcomingResponse = await delay.then((value) => http.get(
-        Uri.parse('https://myclub.run/api/${appStateModel.username}/duties/upcoming'),
-        headers: {"JWT": appStateModel.token}));
+        Uri.parse('https://myclub.run/api/${persistedState.username}/duties/upcoming'),
+        headers: {"JWT": persistedState.token}));
 
     if (upcomingResponse.statusCode == 200) {
       List<UpcomingDuty> deserialisedDuties = List.empty(growable: true);

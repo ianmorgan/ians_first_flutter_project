@@ -9,6 +9,7 @@ import 'duties.dart';
 
 class AppPageRoute extends StatefulWidget {
   const AppPageRoute({super.key, required this.persistedState});
+
   final PersistedState persistedState;
 
   @override
@@ -20,8 +21,6 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
 
   late TabController _myController;
   final PersistedState persistedState;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +40,14 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
               backgroundColor: baseColour,
               title: title,
               bottom: TabBar(
-                labelColor: Colors.white, //<-- selected text color
-                unselectedLabelColor: baseColourLight1, //
-                tabs: [
-                  const Tab(icon: Icon(Icons.home), text: 'Home'),
-                  const Tab(icon: Icon(Icons.task), text: 'Duties'),
-                  const Tab(icon: Icon(Icons.settings), text: 'Settings'),
+                labelColor: Colors.white,
+                unselectedLabelColor: baseColourLight1,
+                indicatorColor: Colors.white,
+                tabs: const [
+                  Tab(icon: Icon(Icons.home), text: 'Home'),
+                  Tab(icon: Icon(Icons.task), text: 'Duties'),
+                  Tab(icon: Icon(Icons.directions_boat), text: 'Sailing'),
+                  Tab(icon: Icon(Icons.person), text: 'Settings'),
                 ],
                 controller: _myController,
               ),
@@ -54,7 +55,16 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
             body: TabBarView(controller: _myController, children: [
               HomePage(persistedState: persistedState),
               buildDutiesPage(context),
-              Text("tab 3"),
+              Container(
+                  color: Colors.black12,
+                  child: const Center(
+                    child: Text("Sailing and racing page goes here"),
+                  )),
+              Container(
+                  color: Colors.black12,
+                  child: const Center(
+                    child: Text("User Options and setting page goes here"),
+                  )),
             ])));
   }
 

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'main.dart';
 import 'models.dart';
 import 'widgets.dart';
 import 'const.dart';
@@ -92,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
             _doRequestToken(userNameController.text)
                 .then((value) => {_doProcessResult(context, value, appStateModel, scaffoldKey)})
                 .then((value) => _saveLogin(appStateModel))
-                .onError((error, stackTrace) => {_doProcessError(context, error, appStateModel, scaffoldKey)});
+                .onError((error, stackTrace) => _doProcessError(context, error, appStateModel, scaffoldKey));
           },
           style: ElevatedButton.styleFrom(
               shape: const StadiumBorder(),
@@ -126,11 +125,11 @@ class _LoginPageState extends State<LoginPage> {
         const Text("Don't have an account? "),
         TextButton(
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MyHomePage(title: "home page"),
-                  ));
+              // Navigator.push(
+              //     context,
+              //     MaterialPageRoute(
+              //       builder: (context) => const MyHomePage(title: "home page"),
+              //     ));
             },
             child: const Text(
               "Sign Up",

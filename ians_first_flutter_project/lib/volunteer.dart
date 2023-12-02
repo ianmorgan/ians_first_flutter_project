@@ -52,15 +52,11 @@ Future<void> volunteerDialogBuilder(
 }
 
 Future<(bool, String)> volunteerForDuties(AppStateModel appStateModel, Duty duty, DutiesModel model) async {
-  print("user name is: ${appStateModel.username}");
-  print("duty is: ${duty.name}");
-  print("calendar entry is: ${model.entryForDutyId(duty.id).name}");
   final response = await http.post(
       Uri.parse(
           'https://myclub.run/api/clubs/${appStateModel.selectedClub}/duties/duty/${duty.id}/doVolunteer?username=${appStateModel.username}&doubleSubmitToken=123456'),
       headers: {"JWT": appStateModel.token});
-  print(response.statusCode);
-  print(response.body);
+
   if (response.statusCode == 200) {
     model.assignDuty(duty.id, appStateModel.username);
   }

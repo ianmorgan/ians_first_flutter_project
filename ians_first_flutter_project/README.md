@@ -52,3 +52,6 @@ https://www.youtube.com/watch?v=p4pmAGn1Y00
 ## Flutter layouts 
 
 https://medium.com/flutter-community/flutter-layout-cheat-sheet-5363348d037e
+
+https://www.scaler.com/topics/flutter-svg/
+

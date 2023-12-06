@@ -343,6 +343,8 @@ Future<bool> fetchUserProfile(PersistedState persistedState, UserProfileModel us
       return true;
     }
   }
+  var p = UserProfile(name: "???", email: "???", clubs: List.empty());
+  userProfileModel.initialLoad(p, List.empty());
   return false;
 }
 

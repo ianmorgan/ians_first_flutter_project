@@ -16,7 +16,10 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+#version: 0.0.1+1
+
+version: 0.0.1
+
 
 environment:
   sdk: '>=3.1.5 <4.0.0'
@@ -42,6 +45,8 @@ dependencies:
 
   path_provider: ^2.1.1
   #image_downloader: ^0.31.0
+
+  flutter_svg: ^2.0.5
 
   # fixes kotlin compilation error - see https://github.com/ko2ic/image_downloader/issues/130
   image_downloader:
@@ -73,6 +78,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/icons/sailing.svg
+    - assets/icons/duties.svg
+
 
   # To add assets to your application, add an assets section, like this:
   # assets:

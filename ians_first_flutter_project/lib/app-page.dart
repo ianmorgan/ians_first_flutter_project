@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'const.dart';
 import 'models.dart';
@@ -21,6 +22,7 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
 
   late TabController _myController;
   final PersistedState persistedState;
+  var currentTab = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +45,15 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
                 labelColor: Colors.white,
                 unselectedLabelColor: baseColourLight1,
                 indicatorColor: Colors.white,
-                tabs: const [
+                tabs: [
                   Tab(icon: Icon(Icons.home), text: 'Home'),
-                  Tab(icon: Icon(Icons.task), text: 'Duties'),
-                  Tab(icon: Icon(Icons.directions_boat), text: 'Sailing'),
+                  Tab(icon: _loadIcon(context, "duties.svg"), text: 'Duties'),
+                  Tab(icon: _loadIcon(context, "sailing.svg"), text: 'Sailing'),
                   Tab(icon: Icon(Icons.person), text: 'Settings'),
                 ],
+                onTap: (index) {
+                  currentTab = index;
+                },
                 controller: _myController,
               ),
             ),
@@ -68,10 +73,28 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
             ])));
   }
 
+  Widget _loadIcon(BuildContext context, String iconName) {
+    var index = currentTab;
+    //print("index is $index");
+    //var color = index == 2? Colors.white : baseColourLight1;
+    //var color2 = Theme.of(context).iconTheme.color;
+    String assetName = 'assets/icons/$iconName';
+    Widget svg = SvgPicture.asset(
+      assetName,
+      semanticsLabel: iconName,
+      color: baseColourLight1,
+      //colorFilter: ColorFilter(),
+      width: 24.0,
+      height: 24.0,
+    );
+    return svg;
+  }
+
   @override
   void initState() {
     super.initState();
-    _myController = TabController(length: 3, vsync: this);
+    _myController = TabController(length: 4, vsync: this);
+    _myController.addListener(_setActiveTabIndex);
   }
 
   @override
@@ -83,6 +106,12 @@ class _AppPageRouteState extends State<AppPageRoute> with TickerProviderStateMix
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+  }
+
+  void _setActiveTabIndex() {
+    setState(() {
+      currentTab = _myController.index;
+    });
   }
 }
 

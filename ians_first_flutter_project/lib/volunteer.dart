@@ -3,6 +3,8 @@ import 'package:ians_first_flutter_project/models.dart';
 import 'package:http/http.dart' as http;
 import 'package:ians_first_flutter_project/widgets.dart';
 
+import 'const.dart';
+
 Future<void> volunteerDialogBuilder(
     BuildContext context, AppStateModel appStateModel, String entryId, String dutyId, DutiesModel model) {
   return showDialog<void>(
@@ -54,7 +56,7 @@ Future<void> volunteerDialogBuilder(
 Future<(bool, String)> volunteerForDuties(AppStateModel appStateModel, Duty duty, DutiesModel model) async {
   final response = await http.post(
       Uri.parse(
-          'https://myclub.run/api/clubs/${appStateModel.selectedClub}/duties/duty/${duty.id}/doVolunteer?username=${appStateModel.username}&doubleSubmitToken=123456'),
+          '$apiLocation/api/clubs/${appStateModel.selectedClub}/duties/duty/${duty.id}/doVolunteer?username=${appStateModel.username}&doubleSubmitToken=123456'),
       headers: {"JWT": appStateModel.token});
 
   if (response.statusCode == 200) {

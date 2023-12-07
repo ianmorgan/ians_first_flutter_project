@@ -29,3 +29,8 @@ const storedUserNameKey = 'current.username';
 const storedTokenKey = 'current.token';
 const storedSelectedClubKey = 'current.selectedClub';
 
+// API
+const apiLocation = 'https://myclub.run';
+//const apiLocation = 'http://localhost:9000';
+
+

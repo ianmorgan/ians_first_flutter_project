@@ -55,3 +55,5 @@ https://medium.com/flutter-community/flutter-layout-cheat-sheet-5363348d037e
 
 https://www.scaler.com/topics/flutter-svg/
 
+## Running web app
+https://stackoverflow.com/questions/65630743/how-to-solve-flutter-web-api-cors-error-only-with-dart-code/66879350#66879350

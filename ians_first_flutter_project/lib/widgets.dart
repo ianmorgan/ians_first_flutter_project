@@ -42,7 +42,7 @@ Widget buildUserImage(String username, double size) {
   return ClipOval(
     child: SizedBox.fromSize(
       size: Size.fromRadius(size), // Image radius
-      child: Image.network('https://myclub.run/users/profileImage/$username', fit: BoxFit.cover),
+      child: Image.network('$apiLocation/users/profileImage/$username', fit: BoxFit.cover),
     ),
   );
 }
@@ -51,7 +51,7 @@ Widget buildClubImage(String club, double size) {
   return ClipOval(
     child: SizedBox.fromSize(
       size: Size.fromRadius(size), // Image radius
-      child: Image.network('https://myclub.run/clubs/$club/profileImage', fit: BoxFit.cover),
+      child: Image.network('$apiLocation/clubs/$club/profileImage', fit: BoxFit.cover),
     ),
   );
 }

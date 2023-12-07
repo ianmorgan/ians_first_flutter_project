@@ -188,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<http.Response> _doRequestToken(String username) {
     var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
-    return delay.then((value) => http.post(Uri.parse('https://myclub.run/auth/api/doRequestToken?authMode=Production'),
+    return delay.then((value) => http.post(Uri.parse('$apiLocation/auth/api/doRequestToken?authMode=Production'),
         body: '{"username":"$username"}'));
   }
 }

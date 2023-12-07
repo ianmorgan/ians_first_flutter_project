@@ -162,7 +162,7 @@ Future<int> fetchDuties(AppStateModel appStateModel, DutiesModel model) async {
   List<CalendarEntry> result = List.empty(growable: true);
 
   if (appStateModel.hasSelectedClub()) {
-    final response = await http.get(Uri.parse('https://myclub.run/api/clubs/${appStateModel.selectedClub}/duties'),
+    final response = await http.get(Uri.parse('$apiLocation/api/clubs/${appStateModel.selectedClub}/duties'),
         headers: {"JWT": appStateModel.token});
 
     if (response.statusCode == 200) {

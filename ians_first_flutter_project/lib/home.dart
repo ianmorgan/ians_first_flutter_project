@@ -305,7 +305,7 @@ class _HomePageState extends State<HomePage> {
 
 
 Future<void> _launchHomePage(String username) async {
-  if (!await launchUrl(Uri.parse('https://myclub.run/$username'), mode: LaunchMode.externalApplication)) {
+  if (!await launchUrl(Uri.parse('$apiLocation/$username'), mode: LaunchMode.externalApplication)) {
     throw Exception('Could not launch home page');
   }
 }
@@ -324,12 +324,12 @@ Future<bool> fetchUserProfile(PersistedState persistedState, UserProfileModel us
   var delay = Future<int>.delayed(const Duration(seconds: simulatedDelay), () => 0);
   // todo - run these requests in parallel
   final profileResponse = await delay.then((value) => http.get(
-      Uri.parse('https://myclub.run/api/${persistedState.username}/profile'),
+      Uri.parse('$apiLocation/api/${persistedState.username}/profile'),
       headers: {"JWT": persistedState.token}));
 
   if (profileResponse.statusCode == 200) {
     final upcomingResponse = await delay.then((value) => http.get(
-        Uri.parse('https://myclub.run/api/${persistedState.username}/duties/upcoming'),
+        Uri.parse('$apiLocation/api/${persistedState.username}/duties/upcoming'),
         headers: {"JWT": persistedState.token}));
 
     if (upcomingResponse.statusCode == 200) {

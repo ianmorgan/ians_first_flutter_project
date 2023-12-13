@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:ians_first_flutter_project/widgets.dart';
+import 'package:myclub_dot_run/widgets.dart';
 import 'package:provider/provider.dart';
 import 'const.dart';
 import 'models.dart';

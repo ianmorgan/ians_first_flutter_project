@@ -1,4 +1,4 @@
-package run.myclub.ians_first_flutter_project
+package run.myclub.app
 
 import io.flutter.embedding.android.FlutterActivity
 

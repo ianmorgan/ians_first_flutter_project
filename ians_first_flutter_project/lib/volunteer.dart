@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ians_first_flutter_project/models.dart';
+import 'package:myclub_dot_run/models.dart';
 import 'package:http/http.dart' as http;
-import 'package:ians_first_flutter_project/widgets.dart';
+import 'package:myclub_dot_run/widgets.dart';
 
 import 'const.dart';
 
